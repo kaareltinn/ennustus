@@ -1,4 +1,4 @@
-defmodule Foobar.Repo.Migrations.CreatePredictions do
+defmodule Ennustus.Repo.Migrations.CreatePredictions do
   use Ecto.Migration
 
   def change do

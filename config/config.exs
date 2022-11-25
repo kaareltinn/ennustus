@@ -7,17 +7,17 @@
 # General application configuration
 import Config
 
-config :foobar,
-  ecto_repos: [Foobar.Repo]
+config :ennustus,
+  ecto_repos: [Ennustus.Repo]
 
 # Configures the endpoint
-config :foobar, FoobarWeb.Endpoint,
+config :ennustus, EnnustusWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [
-    formats: [html: FoobarWeb.ErrorHTML, json: FoobarWeb.ErrorJSON],
+    formats: [html: EnnustusWeb.ErrorHTML, json: EnnustusWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Foobar.PubSub,
+  pubsub_server: Ennustus.PubSub,
   live_view: [signing_salt: "pgbUGsZS"]
 
 # Configures the mailer
@@ -27,7 +27,7 @@ config :foobar, FoobarWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :foobar, Foobar.Mailer, adapter: Swoosh.Adapters.Local
+config :ennustus, Ennustus.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,

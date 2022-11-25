@@ -5,7 +5,7 @@
 # Inside the script, you can read and write to any of your
 # repositories directly:
 #
-#     Foobar.Repo.insert!(%Foobar.SomeSchema{})
+#     Ennustus.Repo.insert!(%Ennustus.SomeSchema{})
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
@@ -23,4 +23,4 @@ matches =
     }
   end)
 
-Foobar.Repo.insert_all(Foobar.Games.Match, matches)
+Ennustus.Repo.insert_all(Ennustus.Games.Match, matches)

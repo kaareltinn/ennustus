@@ -1,4 +1,4 @@
-# Foobar
+# Ennustus
 
 To start your Phoenix server:
 

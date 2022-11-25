@@ -1,7 +1,7 @@
-defmodule Foobar.AccountsFixtures do
+defmodule Ennustus.AccountsFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `Foobar.Accounts` context.
+  entities via the `Ennustus.Accounts` context.
   """
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
@@ -18,7 +18,7 @@ defmodule Foobar.AccountsFixtures do
     {:ok, user} =
       attrs
       |> valid_user_attributes()
-      |> Foobar.Accounts.register_user()
+      |> Ennustus.Accounts.register_user()
 
     user
   end

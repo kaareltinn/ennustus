@@ -1,4 +1,4 @@
-defmodule Foobar.Repo.Migrations.ChangeUserIdToPlayerId do
+defmodule Ennustus.Repo.Migrations.ChangeUserIdToPlayerId do
   use Ecto.Migration
 
   def change do

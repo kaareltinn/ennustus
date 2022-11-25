@@ -1,6 +1,6 @@
-defmodule Foobar do
+defmodule Ennustus do
   @moduledoc """
-  Foobar keeps the contexts that define your domain
+  Ennustus keeps the contexts that define your domain
   and business logic.
 
   Contexts are also responsible for managing your data, regardless

@@ -1,12 +1,12 @@
-defmodule FoobarWeb do
+defmodule EnnustusWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, components, channels, and so on.
 
   This can be used in your application as:
 
-      use FoobarWeb, :controller
-      use FoobarWeb, :html
+      use EnnustusWeb, :controller
+      use EnnustusWeb, :html
 
   The definitions below will be executed for every controller,
   component, etc, so keep them short and clean, focused
@@ -39,12 +39,12 @@ defmodule FoobarWeb do
   def controller do
     quote do
       use Phoenix.Controller,
-        namespace: FoobarWeb,
+        namespace: EnnustusWeb,
         formats: [:html, :json],
-        layouts: [html: FoobarWeb.Layouts]
+        layouts: [html: EnnustusWeb.Layouts]
 
       import Plug.Conn
-      import FoobarWeb.Gettext
+      import EnnustusWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -53,7 +53,7 @@ defmodule FoobarWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {FoobarWeb.Layouts, :app}
+        layout: {EnnustusWeb.Layouts, :app}
 
       unquote(html_helpers())
     end
@@ -85,8 +85,8 @@ defmodule FoobarWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
-      import FoobarWeb.CoreComponents
-      import FoobarWeb.Gettext
+      import EnnustusWeb.CoreComponents
+      import EnnustusWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
@@ -99,9 +99,9 @@ defmodule FoobarWeb do
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
-        endpoint: FoobarWeb.Endpoint,
-        router: FoobarWeb.Router,
-        statics: FoobarWeb.static_paths()
+        endpoint: EnnustusWeb.Endpoint,
+        router: EnnustusWeb.Router,
+        statics: EnnustusWeb.static_paths()
     end
   end
 

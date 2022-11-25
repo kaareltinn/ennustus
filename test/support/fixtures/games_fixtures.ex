@@ -1,7 +1,7 @@
-defmodule Foobar.GamesFixtures do
+defmodule Ennustus.GamesFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `Foobar.Games` context.
+  entities via the `Ennustus.Games` context.
   """
 
   @doc """
@@ -13,7 +13,7 @@ defmodule Foobar.GamesFixtures do
       |> Enum.into(%{
 
       })
-      |> Foobar.Games.create_prediction()
+      |> Ennustus.Games.create_prediction()
 
     prediction
   end

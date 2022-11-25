@@ -1,4 +1,4 @@
-defmodule Foobar.Repo.Migrations.CreateMatches do
+defmodule Ennustus.Repo.Migrations.CreateMatches do
   use Ecto.Migration
 
   def change do
