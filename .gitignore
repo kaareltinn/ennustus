@@ -32,6 +32,6 @@ ennustus-*.tar
 npm-debug.log
 /assets/node_modules/
 
-lib/data/
+/priv/repo/data/
 
 .secrets

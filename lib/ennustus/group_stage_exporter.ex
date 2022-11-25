@@ -4,21 +4,23 @@ defmodule Ennustus.GroupStageExporter do
   alias Ennustus.Repo
 
   def load_file(filename) do
-    Xlsxir.peek("lib/data/#{filename}", 2, 54)
+    Xlsxir.peek(filename, 2, 54)
   end
 
   def parse_name(filename) do
     filename
+    |> String.split("/")
+    |> List.last()
     |> String.split(".")
     |> Enum.at(0)
   end
 
-  def import_all do
-    {:ok, files} = File.ls("lib/data")
+  def import_all(dirname) do
+    {:ok, files} = File.ls(dirname)
 
     files
     |> Enum.each(fn filename ->
-      process(filename)
+      process("#{dirname}/#{filename}")
     end)
   end
 
