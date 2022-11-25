@@ -32,3 +32,4 @@ ennustus-*.tar
 npm-debug.log
 /assets/node_modules/
 
+lib/data/
