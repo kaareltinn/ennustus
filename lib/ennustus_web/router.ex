@@ -20,10 +20,7 @@ defmodule EnnustusWeb.Router do
   scope "/", EnnustusWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
-
-    live "/counter", CounterLive
-    live "/predictions", Games.PredictionsLive
+    live "/", Games.PredictionsLive
   end
 
   # Other scopes may use custom stacks.
