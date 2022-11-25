@@ -1,0 +1,30 @@
+<div>
+  <table class="table-fixed w-max">
+    <thead class="sticky top-0 z-2">
+      <th></th>
+      <th class="font-bold p-4 border bg-blue-50"></th>
+      <%= for match <- @matches do %>
+        <th class="font-bold p-4 border bg-blue-50" id={"match-#{match.id}"}>
+          <%= match.home_team %> <%= match.home_goals %> : <%= match.away_goals %> <%= match.away_team %>
+        </th>
+      <% end %>
+    </thead>
+    <tbody>
+      <%= for {[player, total, games], index} <- Enum.with_index(@predictions) do %>
+        <tr class="hover:bg-blue-50">
+          <td class="sticky text-left font-bold left-0 bg-white z-1 p-2 pr-8 border bg-blue-50">
+            <%= index + 1 %>. <%= player %>
+          </td>
+          <td class="text-s text-center px-4 border">
+            <%= total %>
+          </td>
+          <%= for game <- games do %>
+            <td class="text-s text-center px-4 border">
+              <%= game.home_goals %> : <%= game.away_goals %> (<%= game.score %>)
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
