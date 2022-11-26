@@ -15,6 +15,8 @@ defmodule Ennustus.GroupStageExporter do
     |> Enum.at(0)
   end
 
+  # Run in production:
+  # GroupStageExporter.import_all("../lib/ennustus-0.1.0/priv/repo/data")
   def import_all(dirname) do
     {:ok, files} = File.ls(dirname)
 
