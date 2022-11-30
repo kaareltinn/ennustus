@@ -4,7 +4,8 @@ defmodule EnnustusWeb.Games.PredictionsLive do
   def mount(_params, _session, socket) do
     matches = Ennustus.Games.list_matches()
     predictions = Ennustus.Games.predictions_by_player()
-    scored_predictions = Ennustus.Games.Scorer.score(matches, predictions)
+    questions = Ennustus.Games.question_scores()
+    scored_predictions = Ennustus.Games.Scorer.score(matches, predictions, questions)
 
     socket =
       socket

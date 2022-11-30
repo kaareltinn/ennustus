@@ -131,9 +131,137 @@ match_results =
       home_goals: 0,
       away_goals: 2,
       status: :finished
+    },
+    %{
+      game_number: 18,
+      home_goals: 1,
+      away_goals: 3,
+      status: :finished
+    },
+    %{
+      game_number: 19,
+      home_goals: 1,
+      away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 20,
+      home_goals: 0,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 21,
+      home_goals: 0,
+      away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 22,
+      home_goals: 2,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 23,
+      home_goals: 2,
+      away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 24,
+      home_goals: 2,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 25,
+      home_goals: 0,
+      away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 26,
+      home_goals: 0,
+      away_goals: 2,
+      status: :finished
+    },
+    %{
+      game_number: 27,
+      home_goals: 4,
+      away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 28,
+      home_goals: 1,
+      away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 29,
+      home_goals: 3,
+      away_goals: 3,
+      status: :finished
+    },
+    %{
+      game_number: 30,
+      home_goals: 2,
+      away_goals: 3,
+      status: :finished
+    },
+    %{
+      game_number: 31,
+      home_goals: 1,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 32,
+      home_goals: 2,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 33,
+      home_goals: 1,
+      away_goals: 2,
+      status: :finished
+    },
+    %{
+      game_number: 34,
+      home_goals: 2,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 35,
+      home_goals: 0,
+      away_goals: 3,
+      status: :finished
+    },
+    %{
+      game_number: 36,
+      home_goals: 0,
+      away_goals: 1,
+      status: :finished
     }
   ]
   |> Enum.each(fn %{game_number: game_number} = result ->
     Ennustus.Repo.get_by(Ennustus.Games.Match, game_number: game_number)
     |> Ennustus.Games.update_match(result)
   end)
+
+import Ecto.Query
+
+questions_query =
+  from q in Ennustus.Games.Question,
+    where:
+      (q.question_number == 2 and q.answer == "Wales") or
+        (q.question_number == 3 and q.answer == "Inglismaa") or
+        (q.question_number == 8 and q.answer == "Mehhiko"),
+    select: q
+
+Ennustus.Repo.all(questions_query)
+|> Enum.map(&Ennustus.Games.Question.changeset(&1, %{correct: true}))
+|> Enum.each(&Ennustus.Repo.update(&1))

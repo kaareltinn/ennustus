@@ -21,6 +21,7 @@ defmodule Ennustus.GroupStageExporter do
     {:ok, files} = File.ls(dirname)
 
     files
+    |> Enum.reject(fn filename -> filename == "Lisaküsimused.xlsx" end)
     |> Enum.each(fn filename ->
       process("#{dirname}/#{filename}")
     end)

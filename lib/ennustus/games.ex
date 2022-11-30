@@ -9,6 +9,7 @@ defmodule Ennustus.Games do
   alias Ennustus.Games.Prediction
   alias Ennustus.Games.Player
   alias Ennustus.Games.Match
+  alias Ennustus.Games.Question
 
   @doc """
   Returns the list of predictions.
@@ -135,6 +136,22 @@ defmodule Ennustus.Games do
         }
 
     Repo.all(query)
-    |> Enum.group_by(fn pred -> pred.name end)
+    |> Enum.group_by(fn pred -> {pred.player_id, pred.name} end)
+  end
+
+  def question_scores do
+    sub =
+      from q in Question,
+        where: q.correct == true,
+        group_by: q.player_id,
+        select: %{player_id: q.player_id, count: count(q.id)}
+
+    Repo.all(
+      from p in Player,
+        join: c in subquery(sub),
+        on: p.id == c.player_id,
+        select: %{player_id: p.id, name: p.name, score: c.count * 10}
+    )
+    |> Enum.group_by(& &1.player_id)
   end
 end

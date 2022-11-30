@@ -3,12 +3,12 @@ defmodule Ennustus.Games.Scorer do
     Enum.reduce(predictions, 0, fn %{score: score}, acc -> acc + score end)
   end
 
-  def score(matches, predictions) do
+  def score(matches, predictions, questions) do
     matches_by_game_number =
       matches
       |> Enum.group_by(fn %{game_number: game_number} -> game_number end)
 
-    Enum.reduce(predictions, [], fn {player, predictions}, acc ->
+    Enum.reduce(predictions, [], fn {{player_id, name}, predictions}, acc ->
       scored_predictions =
         Enum.map(predictions, fn prediction ->
           [match] = matches_by_game_number[prediction.game_number]
@@ -21,7 +21,10 @@ defmodule Ennustus.Games.Scorer do
           )
         end)
 
-      [[player, total_score(scored_predictions), scored_predictions] | acc]
+      questions_score = Map.get(questions, player_id, [%{score: 0}]) |> List.first()
+      total = total_score(scored_predictions) + questions_score.score
+
+      [[name, total, scored_predictions] | acc]
     end)
     |> Enum.sort_by(fn [_, total, _] -> total end, :desc)
   end
