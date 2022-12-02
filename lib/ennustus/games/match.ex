@@ -19,10 +19,6 @@ defmodule Ennustus.Games.Match do
   @doc false
   def changeset(match, attrs) do
     match
-    |> cast(attrs, [:home_goals, :away_goals, :status])
-    |> validate_required([
-      :home_goals,
-      :away_goals
-    ])
+    |> cast(attrs, [:home_team, :away_team, :home_goals, :away_goals, :status])
   end
 end

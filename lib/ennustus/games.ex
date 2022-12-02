@@ -32,6 +32,39 @@ defmodule Ennustus.Games do
     Repo.all(query)
   end
 
+  defp list_matches_by_game_numbers(game_numbers) do
+    from(
+      m in Match,
+      where: m.game_number in ^game_numbers,
+      select: m
+    )
+    |> Repo.all()
+  end
+
+  def list_playoff_matches do
+    49..64
+    |> Enum.to_list()
+    |> list_matches_by_game_numbers()
+  end
+
+  def list_playoff_matches(:eigth) do
+    49..56
+    |> Enum.to_list()
+    |> list_matches_by_game_numbers()
+  end
+
+  def list_playoff_matches(:quarter) do
+    57..60
+    |> Enum.to_list()
+    |> list_matches_by_game_numbers()
+  end
+
+  def list_playoff_matches(:semi) do
+    61..62
+    |> Enum.to_list()
+    |> list_matches_by_game_numbers()
+  end
+
   def update_match(%Match{} = match, attrs) do
     match
     |> Match.changeset(attrs)

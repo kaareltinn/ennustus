@@ -19,9 +19,15 @@
             <%= total %>
           </td>
           <%= for game <- games do %>
-            <td class="text-s text-center px-4 border">
-              <%= game.home_goals %> : <%= game.away_goals %> (<%= game.score %>)
-            </td>
+            <%= if game.game_number < 49 do %>
+              <td class="text-s text-center px-4 border">
+                <%= game.home_goals %> : <%= game.away_goals %> (<%= game.score %>)
+              </td>
+            <% else %>
+              <td class="text-s text-center px-4 border">
+                <%= game.home_team %> : <%= game.away_team %> (<%= game.score %>)
+              </td>
+            <% end %>
           <% end %>
         </tr>
       <% end %>

@@ -8,17 +8,30 @@ defmodule Ennustus.Games.Scorer do
       matches
       |> Enum.group_by(fn %{game_number: game_number} -> game_number end)
 
+    matches_by_stage =
+      matches
+      |> Enum.group_by(fn %{game_number: game_number} -> get_playoff_stage(game_number) end)
+
     Enum.reduce(predictions, [], fn {{player_id, name}, predictions}, acc ->
       scored_predictions =
         Enum.map(predictions, fn prediction ->
           [match] = matches_by_game_number[prediction.game_number]
 
-          Map.merge(
-            prediction,
-            %{
-              score: score_prediction(prediction, match)
-            }
-          )
+          if prediction.game_number < 49 do
+            Map.merge(
+              prediction,
+              %{
+                score: score_prediction(prediction, match)
+              }
+            )
+          else
+            Map.merge(
+              prediction,
+              %{
+                score: score_playoff_prediction(prediction, match.game_number, matches_by_stage)
+              }
+            )
+          end
         end)
 
       questions_score = Map.get(questions, player_id, [%{score: 0}]) |> List.first()
@@ -42,6 +55,26 @@ defmodule Ennustus.Games.Scorer do
     end
   end
 
+  def score_playoff_prediction(prediction, game_number, matches_by_stage) do
+    stage = get_playoff_stage(game_number)
+    matches = matches_by_stage[stage]
+
+    teams =
+      matches
+      |> Enum.flat_map(fn %{home_team: home_team, away_team: away_team} ->
+        [home_team, away_team]
+      end)
+
+    correct =
+      MapSet.intersection(
+        MapSet.new([prediction.home_team, prediction.away_team]),
+        MapSet.new(teams)
+      )
+
+    count = Enum.count(correct)
+    count * 10
+  end
+
   defp result(%{home_goals: home_goals, away_goals: away_goals}) do
     cond do
       home_goals > away_goals -> :home_win
@@ -54,4 +87,11 @@ defmodule Ennustus.Games.Scorer do
     10 - abs(prediction.home_goals - match.home_goals) -
       abs(prediction.away_goals - match.away_goals)
   end
+
+  defp get_playoff_stage(game_number) when game_number in 1..48, do: :group
+  defp get_playoff_stage(game_number) when game_number in 49..56, do: :eigth
+  defp get_playoff_stage(game_number) when game_number in 57..60, do: :quarter
+  defp get_playoff_stage(game_number) when game_number in 61..62, do: :semi
+  defp get_playoff_stage(63), do: :third
+  defp get_playoff_stage(64), do: :final
 end

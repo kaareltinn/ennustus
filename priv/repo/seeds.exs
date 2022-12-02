@@ -28,6 +28,23 @@ if Ennustus.Repo.all(Ennustus.Games.Match) |> Enum.empty?() do
   Ennustus.Repo.insert_all(Ennustus.Games.Match, matches)
 end
 
+if Ennustus.Games.list_playoff_matches() |> Enum.empty?() do
+  data =
+    49..64
+    |> Enum.map(fn game_number ->
+      %{
+        game_number: game_number,
+        home_team: "TBD",
+        away_team: "TBD",
+        status: :not_started,
+        inserted_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second),
+        updated_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+      }
+    end)
+
+  Ennustus.Repo.insert_all(Ennustus.Games.Match, data)
+end
+
 match_results =
   [
     %{
@@ -244,6 +261,126 @@ match_results =
       game_number: 36,
       home_goals: 0,
       away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 37,
+      home_goals: 1,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 38,
+      home_goals: 1,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 39,
+      home_goals: 0,
+      away_goals: 2,
+      status: :finished
+    },
+    %{
+      game_number: 40,
+      home_goals: 1,
+      away_goals: 2,
+      status: :finished
+    },
+    %{
+      game_number: 41,
+      home_goals: 0,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 42,
+      home_goals: 1,
+      away_goals: 2,
+      status: :finished
+    },
+    %{
+      game_number: 43,
+      home_goals: 2,
+      away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 44,
+      home_goals: 2,
+      away_goals: 4,
+      status: :finished
+    },
+    %{
+      game_number: 45,
+      home_goals: 0,
+      away_goals: 2,
+      status: :finished
+    },
+    %{
+      game_number: 46,
+      home_goals: 2,
+      away_goals: 1,
+      status: :finished
+    },
+    %{
+      game_number: 47,
+      home_goals: 2,
+      away_goals: 3,
+      status: :finished
+    },
+    %{
+      game_number: 48,
+      home_goals: 1,
+      away_goals: 0,
+      status: :finished
+    },
+    %{
+      game_number: 49,
+      home_team: "Netherlands",
+      away_team: "United States",
+      status: :finished
+    },
+    %{
+      game_number: 50,
+      home_team: "Argentina",
+      away_team: "Australia",
+      status: :finished
+    },
+    %{
+      game_number: 51,
+      home_team: "England",
+      away_team: "Senegal",
+      status: :finished
+    },
+    %{
+      game_number: 52,
+      home_team: "France",
+      away_team: "Poland",
+      status: :finished
+    },
+    %{
+      game_number: 53,
+      home_team: "Japan",
+      away_team: "Croatia",
+      status: :finished
+    },
+    %{
+      game_number: 54,
+      home_team: "Brazil",
+      away_team: "Korea Republic",
+      status: :finished
+    },
+    %{
+      game_number: 55,
+      home_team: "Morocco",
+      away_team: "Spaon",
+      status: :finished
+    },
+    %{
+      game_number: 56,
+      home_team: "Portugal",
+      away_team: "Switzerland",
       status: :finished
     }
   ]
