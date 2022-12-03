@@ -374,7 +374,7 @@ match_results =
     %{
       game_number: 55,
       home_team: "Morocco",
-      away_team: "Spaon",
+      away_team: "Spain",
       status: :finished
     },
     %{
@@ -396,6 +396,10 @@ questions_query =
     where:
       (q.question_number == 2 and q.answer == "Wales") or
         (q.question_number == 3 and q.answer == "Inglismaa") or
+        (q.question_number == 4 and q.answer == "4") or
+        (q.question_number == 6 and q.answer == "Inglismaa") or
+        (q.question_number == 6 and q.answer == "Hispaania") or
+        (q.question_number == 7 and q.answer == "Costa Rica") or
         (q.question_number == 8 and q.answer == "Mehhiko"),
     select: q
 
