@@ -88,6 +88,8 @@ defmodule EnnustusWeb do
       import EnnustusWeb.CoreComponents
       import EnnustusWeb.Gettext
 
+      import EnnustusWeb.ViewHelpers
+
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
 

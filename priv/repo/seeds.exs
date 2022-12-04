@@ -382,6 +382,18 @@ match_results =
       home_team: "Portugal",
       away_team: "Switzerland",
       status: :finished
+    },
+    %{
+      game_number: 57,
+      home_team: "Netherlands",
+      away_team: "Argentina",
+      status: :finished
+    },
+    %{
+      game_number: 59,
+      home_team: "England",
+      away_team: "France",
+      status: :finished
     }
   ]
   |> Enum.each(fn %{game_number: game_number} = result ->

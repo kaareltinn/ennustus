@@ -11,6 +11,8 @@ defmodule Ennustus.Games do
   alias Ennustus.Games.Match
   alias Ennustus.Games.Question
 
+  @games_order [49..64, 1..48] |> Enum.flat_map(&Enum.to_list/1)
+
   @doc """
   Returns the list of predictions.
 
@@ -27,7 +29,7 @@ defmodule Ennustus.Games do
   def list_matches do
     query =
       from m in Match,
-        order_by: m.game_number
+        order_by: fragment("array_position(?, ?)", ^@games_order, m.game_number)
 
     Repo.all(query)
   end
@@ -157,7 +159,7 @@ defmodule Ennustus.Games do
 
     query =
       from [pl, pre] in query,
-        order_by: pre.game_number,
+        order_by: fragment("array_position(?, ?)", ^@games_order, pre.game_number),
         select: %{
           name: pl.name,
           game_number: pre.game_number,

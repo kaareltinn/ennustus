@@ -24,7 +24,7 @@
                 <%= game.home_goals %> : <%= game.away_goals %> (<%= game.score %>)
               </td>
             <% else %>
-              <td class="text-s text-center px-4 border">
+              <td class={"text-s text-center px-4 border #{classes("bg-blue-200": game.game_number in 49..56, "bg-blue-300": game.game_number in 57..60, "bg-blue-400": game.game_number in 61..62, "bg-blue-500": game.game_number in 63..64)}"}>
                 <%= game.home_team %> : <%= game.away_team %> (<%= game.score %>)
               </td>
             <% end %>
