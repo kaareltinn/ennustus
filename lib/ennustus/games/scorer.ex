@@ -48,10 +48,18 @@ defmodule Ennustus.Games.Scorer do
 
   def score_prediction(prediction, match) do
     case {result(prediction), result(match)} do
-      {:home_win, :home_win} -> compute_score(prediction, match)
-      {:away_win, :away_win} -> compute_score(prediction, match)
-      {:draw, :draw} -> compute_score(prediction, match)
-      _ -> 0
+      {:home_win, :home_win} ->
+        compute_score(prediction, match)
+
+      {:away_win, :away_win} ->
+        compute_score(prediction, match)
+
+      {:draw, :draw} ->
+        compute_score(prediction, match)
+
+      _ ->
+        -abs(prediction.home_goals - match.home_goals) -
+          abs(prediction.away_goals - match.away_goals)
     end
   end
 
@@ -84,8 +92,13 @@ defmodule Ennustus.Games.Scorer do
   end
 
   defp compute_score(prediction, match) do
-    10 - abs(prediction.home_goals - match.home_goals) -
-      abs(prediction.away_goals - match.away_goals)
+    home_goals_diff = abs(prediction.home_goals - match.home_goals)
+    away_goals_diff = abs(prediction.away_goals - match.away_goals)
+
+    case {home_goals_diff, away_goals_diff} do
+      {0, 0} -> 12
+      {_, _} -> 10 - home_goals_diff - away_goals_diff
+    end
   end
 
   defp get_playoff_stage(game_number) when game_number in 1..48, do: :group
