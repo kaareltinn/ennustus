@@ -13,8 +13,9 @@ defmodule Ennustus.QuestionsExporter do
     # {:ok, player} = Repo.get_by!(Player, name: player_name)
     data =
       Xlsxir.get_mda(ref)
-      |> Enum.reject(fn {i, _} -> i == 0 end)
+      |> Enum.reject(fn {i, row} -> i == 0 || is_nil(row[0]) end)
       |> Enum.flat_map(fn {_, row} ->
+        IO.inspect(row[0])
         player = Repo.get_by!(Player, name: row[0])
 
         [
@@ -43,7 +44,7 @@ defmodule Ennustus.QuestionsExporter do
             updated_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
           },
           %{
-            answer: row[4] |> trunc() |> Integer.to_string(),
+            answer: row[4],
             correct: false,
             question_number: 4,
             player_id: player.id,
