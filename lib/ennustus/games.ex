@@ -11,7 +11,8 @@ defmodule Ennustus.Games do
   alias Ennustus.Games.Match
   alias Ennustus.Games.Question
 
-  @games_order [49..64, 1..48] |> Enum.flat_map(&Enum.to_list/1)
+  # @games_order [49..64, 1..48] |> Enum.flat_map(&Enum.to_list/1)
+  @games_order [37..51, 1..36] |> Enum.flat_map(&Enum.to_list/1)
 
   @doc """
   Returns the list of predictions.

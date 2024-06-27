@@ -17,7 +17,7 @@ defmodule Ennustus.Games.Scorer do
         Enum.map(predictions, fn prediction ->
           [match] = matches_by_game_number[prediction.game_number]
 
-          if prediction.game_number < 49 do
+          if prediction.game_number < 37 do
             Map.merge(
               prediction,
               %{
@@ -80,7 +80,7 @@ defmodule Ennustus.Games.Scorer do
       )
 
     count = Enum.count(correct)
-    count * 10
+    count * get_playoff_stage_coef(stage)
   end
 
   defp result(%{home_goals: home_goals, away_goals: away_goals}) do
@@ -101,10 +101,19 @@ defmodule Ennustus.Games.Scorer do
     end
   end
 
-  defp get_playoff_stage(game_number) when game_number in 1..48, do: :group
-  defp get_playoff_stage(game_number) when game_number in 49..56, do: :eigth
-  defp get_playoff_stage(game_number) when game_number in 57..60, do: :quarter
-  defp get_playoff_stage(game_number) when game_number in 61..62, do: :semi
-  defp get_playoff_stage(63), do: :third
-  defp get_playoff_stage(64), do: :final
+  defp get_playoff_stage(game_number) when game_number in 1..36, do: :group
+  defp get_playoff_stage(game_number) when game_number in 37..44, do: :eigth
+  defp get_playoff_stage(game_number) when game_number in 45..48, do: :quarter
+  defp get_playoff_stage(game_number) when game_number in 49..50, do: :semi
+  # defp get_playoff_stage(63), do: :third
+  defp get_playoff_stage(51), do: :final
+
+  defp get_playoff_stage_coef(stage) do
+    case stage do
+      :eigth -> 10
+      :quarter -> 12
+      :semi -> 15
+      :final -> 18
+    end
+  end
 end

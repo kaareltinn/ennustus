@@ -3,6 +3,8 @@ defmodule Ennustus.Euro2024.MatchesExporter do
 
   alias Ennustus.Repo
 
+  import Ecto.Query
+
   def export(:group_stage) do
     matches =
       [
@@ -55,5 +57,49 @@ defmodule Ennustus.Euro2024.MatchesExporter do
       end)
 
     Repo.insert_all(Match, matches)
+  end
+
+  def export(:playoffs) do
+    matches =
+      [
+        [37, "Germany", "Denmark"],
+        [38, "Switzerland", "Italy"],
+        [39, "Spain", "Georgia"],
+        [40, "England", "Slovakia"],
+        [41, "Portugal", "Slovenia"],
+        [42, "France", "Belgium"],
+        [43, "Romania", "Netherlands"],
+        [44, "Austria", "Türkiye"],
+        [45, nil, nil],
+        [46, nil, nil],
+        [47, nil, nil],
+        [48, nil, nil],
+        [49, nil, nil],
+        [50, nil, nil],
+        [51, nil, nil]
+      ]
+      |> Enum.map(fn [game_number, hteam, ateam] ->
+        %{
+          game_number: game_number,
+          home_team: hteam,
+          away_team: ateam,
+          status: :not_started,
+          inserted_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second),
+          updated_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+        }
+      end)
+
+    Repo.insert_all(Match, matches)
+  end
+
+  def reset(:playoffs) do
+    game_numbers = 37..51 |> Enum.to_list()
+
+    from(
+      m in Match,
+      where: m.game_number in ^game_numbers,
+      select: m
+    )
+    |> Repo.delete_all()
   end
 end

@@ -19,12 +19,12 @@
             <%= total %>
           </td>
           <%= for game <- games do %>
-            <%= if game.game_number < 49 do %>
+            <%= if game.game_number < 37 do %>
               <td class="text-s text-center px-4 border">
                 <%= game.home_goals %> : <%= game.away_goals %> (<%= game.score %>)
               </td>
             <% else %>
-              <td class={"text-s text-center px-4 border #{classes("bg-blue-200": game.game_number in 49..56, "bg-blue-300": game.game_number in 57..60, "bg-blue-400": game.game_number in 61..62, "bg-blue-500": game.game_number in 63..64)}"}>
+              <td class={"text-s text-center px-4 border #{classes("bg-blue-200": game.game_number in 37..44, "bg-blue-300": game.game_number in 45..48, "bg-emerald-200": game.game_number in 49..50, "bg-amber-200": game.game_number == 51)}"}>
                 <%= game.home_team %> : <%= game.away_team %> (<%= game.score %>)
               </td>
             <% end %>
