@@ -31,7 +31,7 @@ defmodule Ennustus.Countries do
 
   def iso_code_2(country_name) do
     %{
-      "England" => :gb_eng,
+      "England" => :"gb-eng",
       "Germany" => :de,
       "Denmark" => :dk,
       "Spain" => :es,
@@ -48,9 +48,9 @@ defmodule Ennustus.Countries do
       "Romania" => :ro,
       "Türkiye" => :tr,
       "Czechia" => :cz,
-      "Ukraine" => :uk,
+      "Ukraine" => :ua,
       "Poland" => :pl,
-      "Scotland" => :gb_sct,
+      "Scotland" => :"gb-sct",
       "Hungary" => :hu,
       "Croatia" => :hr,
       "Serbia" => :rs,
