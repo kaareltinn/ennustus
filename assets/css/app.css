@@ -3,3 +3,9 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+.fi {
+    position: static;
+    display: inline-block;
+    width: 1.333333em;
+    line-height: 1em;
+}
