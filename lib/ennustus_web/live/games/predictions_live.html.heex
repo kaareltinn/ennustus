@@ -25,7 +25,13 @@
               </td>
             <% else %>
               <td class={"text-s text-center px-4 border #{classes("bg-blue-200": game.game_number in 37..44, "bg-blue-300": game.game_number in 45..48, "bg-emerald-200": game.game_number in 49..50, "bg-amber-200": game.game_number == 51)}"}>
-                <%= game.home_team %> : <%= game.away_team %> (<%= game.score %>)
+              <Flagpack.flag name={iso_code(game.home_team)} class="w-5 h-3 inline-block" />
+              <%= shorten(game.home_team) %>
+              :
+              <%= shorten(game.away_team) %>
+              :
+              <Flagpack.flag name={iso_code(game.away_team)} class="w-5 h-3 inline-block" />
+              (<%= game.score %>)
               </td>
             <% end %>
           <% end %>
