@@ -52,8 +52,7 @@ defmodule Ennustus.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:xlsxir, "~> 1.6.4"},
-      {:flagpack, "~> 0.4.0"}
+      {:xlsxir, "~> 1.6.4"}
     ]
   end
 
