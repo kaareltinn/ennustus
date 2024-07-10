@@ -2,6 +2,7 @@
   <table class="table-auto xl:table-fixed w-fit xl:w-max">
     <thead class="sticky top-0 z-2">
       <th></th>
+      <th></th>
       <th class="font-bold p-4 border bg-blue-100"></th>
       <%= for match <- @matches do %>
         <th class="font-bold p-4 border bg-blue-50" id={"match-#{match.id}"}>
@@ -10,13 +11,17 @@
       <% end %>
     </thead>
     <tbody>
-      <%= for {[player, total, games], index} <- Enum.with_index(@predictions) do %>
-        <tr class="hover:bg-blue-50">
+      <%= for {[{player_id, player_name}, total, games], index} <- Enum.with_index(@predictions) do %>
+        <tr class="hover:bg-indigo-50">
           <td class="sticky text-left font-bold left-0 z-1 p-2 pr-8 border bg-blue-50 w-32 lg:w-48">
-            <%= index + 1 %>. <%= player %>
+            <%= index + 1 %>. <%= player_name %>
           </td>
           <td class="sticky left-32 lg:left-48 z-1 bg-white bg-blue-100 text-s text-center px-4 border">
             <%= total %>
+          </td>
+          <td class="p-2 m-2 bg-yellow-400">
+            <span class={"fi fi-#{iso_code_2(@winner_predictions[player_id].answer)}"} %></span>
+            <%= shorten(@winner_predictions[player_id].answer) %>
           </td>
           <%= for game <- games do %>
             <%= if game.game_number < 37 do %>

@@ -12,7 +12,7 @@ defmodule Ennustus.Games do
   alias Ennustus.Games.Question
 
   # @games_order [49..64, 1..48] |> Enum.flat_map(&Enum.to_list/1)
-  @games_order [37..51, 1..36] |> Enum.flat_map(&Enum.to_list/1)
+  @games_order [[51], 49..50, 48..45, 37..44, 1..36] |> Enum.flat_map(&Enum.to_list/1)
 
   @doc """
   Returns the list of predictions.
@@ -178,7 +178,7 @@ defmodule Ennustus.Games do
   def question_scores do
     sub =
       from q in Question,
-        where: q.correct == true,
+        where: q.correct == true and q.question_number in [1, 2, 3, 4, 5, 6, 7, 8],
         group_by: q.player_id,
         select: %{player_id: q.player_id, count: count(q.id)}
 
@@ -189,5 +189,14 @@ defmodule Ennustus.Games do
         select: %{player_id: p.id, name: p.name, score: c.count * 10}
     )
     |> Enum.group_by(& &1.player_id)
+  end
+
+  def winner_predictions do
+    query =
+      from q in Question,
+        where: q.question_number == 9
+
+    Repo.all(query)
+    |> Map.new(&{&1.player_id, &1})
   end
 end

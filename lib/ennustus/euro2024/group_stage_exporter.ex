@@ -16,7 +16,7 @@ defmodule Ennustus.Euro2024.GroupStageExporter do
   end
 
   # Run in production:
-  # GroupStageExporter.import_all("../lib/ennustus-0.1.0/priv/repo/euro2024/data")
+  # GroupStageExporter.import_all("../lib/ennustus-0.1.0/priv/data/euro2024")
   def import_all(dirname) do
     {:ok, files} = File.ls(dirname)
 

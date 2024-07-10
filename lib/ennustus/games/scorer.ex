@@ -3,7 +3,7 @@ defmodule Ennustus.Games.Scorer do
     Enum.reduce(predictions, 0, fn %{score: score}, acc -> acc + score end)
   end
 
-  def score(matches, predictions, questions) do
+  def score(matches, predictions, questions, winner_predictions) do
     matches_by_game_number =
       matches
       |> Enum.group_by(fn %{game_number: game_number} -> game_number end)
@@ -35,9 +35,10 @@ defmodule Ennustus.Games.Scorer do
         end)
 
       questions_score = Map.get(questions, player_id, [%{score: 0}]) |> List.first()
-      total = total_score(scored_predictions) + questions_score.score
+      winner_score = score_winner(player_id, winner_predictions)
+      total = total_score(scored_predictions) + questions_score.score + winner_score
 
-      [[name, total, scored_predictions] | acc]
+      [[{player_id, name}, total, scored_predictions] | acc]
     end)
     |> Enum.sort_by(fn [_, total, _] -> total end, :desc)
   end
@@ -81,6 +82,15 @@ defmodule Ennustus.Games.Scorer do
 
     count = Enum.count(correct)
     count * get_playoff_stage_coef(stage)
+  end
+
+  def score_winner(player_id, winner_predictions) do
+    prediction = winner_predictions[player_id]
+
+    case prediction do
+      %{correct: true} -> 30
+      _ -> 0
+    end
   end
 
   defp result(%{home_goals: home_goals, away_goals: away_goals}) do
