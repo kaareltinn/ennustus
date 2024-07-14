@@ -88,7 +88,7 @@ defmodule Ennustus.Games.Scorer do
     prediction = winner_predictions[player_id]
 
     case prediction do
-      %{correct: true} -> 30
+      %{correct: true} -> 25
       _ -> 0
     end
   end
