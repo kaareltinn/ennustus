@@ -46,10 +46,18 @@ defmodule Ennustus.Euro2024.WinnerExporter do
       player_id: player.id
     })
     |> Repo.insert()
+
+    close_file(ref)
+
+    :ok
   end
 
   def reset() do
     query = from q in Question, where: q.question_number == 9
     Repo.delete_all(query)
+  end
+
+  def close_file(ref) do
+    Xlsxir.close(ref)
   end
 end
