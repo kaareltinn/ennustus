@@ -20,8 +20,11 @@
             <%= total %>
           </td>
           <td class="p-2 m-2 bg-yellow-400">
-            <span class={"fi fi-#{iso_code_2(@winner_predictions[player_id].answer)}"} %></span>
-            <%= shorten(@winner_predictions[player_id].answer) %>
+            <% winner = @winner_predictions[player_id] %>
+            <%= if winner do %>
+              <span class={"fi fi-#{iso_code_2(winner.answer)}"} %></span>
+              <%= shorten(winner.answer) %>
+            <% end %>
           </td>
           <%= for game <- games do %>
             <%= if game.game_number < 37 do %>
