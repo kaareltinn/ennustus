@@ -101,4 +101,79 @@ defmodule Ennustus.Countries do
     |> String.slice(0..2)
     |> String.upcase()
   end
+
+  @world_cup_2026_teams [
+    "Algeria",
+    "Argentina",
+    "Australia",
+    "Austria",
+    "Belgium",
+    "Bosnia/Herzeg.",
+    "Brazil",
+    "Canada",
+    "Cape Verde",
+    "Colombia",
+    "Croatia",
+    "Curaçao",
+    "Czech Rep.",
+    "DR Congo",
+    "Ecuador",
+    "Egypt",
+    "England",
+    "France",
+    "Germany",
+    "Ghana",
+    "Haiti",
+    "IR Iran",
+    "Iraq",
+    "Ivory Coast",
+    "Japan",
+    "Jordan",
+    "Mexico",
+    "Morocco",
+    "Netherlands",
+    "New Zealand",
+    "Norway",
+    "Panama",
+    "Paraguay",
+    "Portugal",
+    "Qatar",
+    "Rep. of Korea",
+    "Saudi Arabia",
+    "Scotland",
+    "Senegal",
+    "South Africa",
+    "Spain",
+    "Sweden",
+    "Switzerland",
+    "Tunisia",
+    "Turkey",
+    "USA",
+    "Uruguay",
+    "Uzbekistan"
+  ]
+
+  @doc "Team names that can appear in the World Cup 2026, sorted for select inputs."
+  def world_cup_2026_teams, do: @world_cup_2026_teams
+
+  @doc """
+  Unicode flag emoji for a country, derived from its two-letter code. Used where
+  CSS flag-icons cannot render (e.g. native `<option>` labels).
+  """
+  def flag_emoji(country_name) do
+    case iso_code_2(country_name) do
+      nil -> "🏳"
+      :"gb-eng" -> "🏴󠁧󠁢󠁥󠁮󠁧󠁿"
+      :"gb-sct" -> "🏴󠁧󠁢󠁳󠁣󠁴󠁿"
+      code -> regional_indicators(code)
+    end
+  end
+
+  defp regional_indicators(code) do
+    code
+    |> to_string()
+    |> String.upcase()
+    |> String.to_charlist()
+    |> Enum.map_join(fn char -> <<0x1F1E6 + (char - ?A)::utf8>> end)
+  end
 end

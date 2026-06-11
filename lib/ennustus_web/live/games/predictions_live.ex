@@ -27,4 +27,21 @@ defmodule EnnustusWeb.Games.PredictionsLive do
 
     {:ok, socket}
   end
+
+  @doc "Tone class for a points value."
+  def score_class(score) when score > 0, do: "score-pos"
+  def score_class(score) when score < 0, do: "score-neg"
+  def score_class(_), do: "score-zero"
+
+  @doc "Podium colour for a rank number (0-indexed)."
+  def rank_class(0), do: "rank-1"
+  def rank_class(1), do: "rank-2"
+  def rank_class(2), do: "rank-3"
+  def rank_class(_), do: "text-[var(--ink-faint)]"
+
+  @doc "Podium accent for the standings rail (0-indexed)."
+  def rail_class(0), do: "rail-1"
+  def rail_class(1), do: "rail-2"
+  def rail_class(2), do: "rail-3"
+  def rail_class(_), do: ""
 end

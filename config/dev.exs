@@ -6,7 +6,7 @@ config :ennustus, Ennustus.Repo,
   password: "postgres",
   hostname: "localhost",
   database: "ennustus_dev",
-  port: 5436,
+  port: 5439,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10

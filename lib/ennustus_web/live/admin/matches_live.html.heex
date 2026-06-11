@@ -1,0 +1,127 @@
+<div class="scoreboard -m-2 min-h-screen">
+  <div class="mx-auto max-w-5xl px-5 sm:px-8 py-10">
+    <header class="mb-8">
+      <p class="t-accent tracking-[0.4em] text-[11px] sm:text-xs mb-2">
+        ENNUSTUSLIIGA · ADMIN
+      </p>
+      <h1 class="font-display t-ink text-4xl sm:text-6xl leading-[0.85]">
+        MATCH RESULTS
+      </h1>
+    </header>
+
+    <section class="rounded-xl border bd-hair bg-panel p-5 mb-10">
+      <h2 class="font-display text-xl t-ink mb-3">Winner bonuses</h2>
+      <div class="flex flex-wrap gap-x-8 gap-y-2 text-sm t-soft">
+        <span class="flex items-center gap-2">
+          Champion <span class="t-faint">(104)</span>
+          <%= if @champion do %>
+            <span class={"fi fi-#{iso_code_2(@champion)}"}></span>
+            <strong class="t-ink"><%= @champion %></strong>
+          <% else %>
+            <strong class="t-faint">—</strong>
+          <% end %>
+        </span>
+        <span class="flex items-center gap-2">
+          Third place <span class="t-faint">(103)</span>
+          <%= if @third_place do %>
+            <span class={"fi fi-#{iso_code_2(@third_place)}"}></span>
+            <strong class="t-ink"><%= @third_place %></strong>
+          <% else %>
+            <strong class="t-faint">—</strong>
+          <% end %>
+        </span>
+      </div>
+      <p class="text-xs t-faint mt-2">
+        Derived from the finished results of games 103 and 104. Applying marks every player's
+        champion / third-place pick correct when it matches.
+      </p>
+      <button
+        phx-click="apply_bonuses"
+        class="mt-4 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+      >
+        Apply winner bonuses
+      </button>
+    </section>
+
+    <%= for {st, games} <- @grouped do %>
+      <section class="mb-8">
+        <div class="flex items-center gap-2.5 mb-2 px-1">
+          <span class={"h-3 w-3 rounded-full #{stage_band(st)}"}></span>
+          <h2 class="font-display text-2xl t-ink leading-none"><%= stage_label(st) %></h2>
+          <span class="t-faint text-xs"><%= length(games) %> games</span>
+        </div>
+
+        <div class="rounded-xl border bd-hair bg-panel overflow-hidden">
+          <%= for match <- games do %>
+            <.form
+              for={%{}}
+              phx-submit="save_match"
+              class="flex items-center gap-2 px-3 py-2 border-b bd-hair last:border-b-0"
+            >
+              <input type="hidden" name="match_id" value={match.id} />
+              <span class={"self-stretch w-1 rounded-full #{stage_band(st)}"}></span>
+              <span class="font-display text-lg t-faint w-9 text-center shrink-0">
+                <%= match.game_number %>
+              </span>
+
+              <select
+                name="home_team"
+                class="flex-1 min-w-0 rounded-md border bd-hair bg-white px-2 py-1.5 text-[13px] t-ink"
+              >
+                <option value="" selected={is_nil(match.home_team)}>—</option>
+                <%= for team <- @teams do %>
+                  <option value={team} selected={team == match.home_team}>
+                    <%= flag_emoji(team) %> <%= team %>
+                  </option>
+                <% end %>
+              </select>
+
+              <span class="t-faint text-[11px] uppercase tracking-wider shrink-0">v</span>
+
+              <select
+                name="away_team"
+                class="flex-1 min-w-0 rounded-md border bd-hair bg-white px-2 py-1.5 text-[13px] t-ink"
+              >
+                <option value="" selected={is_nil(match.away_team)}>—</option>
+                <%= for team <- @teams do %>
+                  <option value={team} selected={team == match.away_team}>
+                    <%= flag_emoji(team) %> <%= team %>
+                  </option>
+                <% end %>
+              </select>
+
+              <div class="flex items-center gap-1 shrink-0">
+                <input
+                  type="number"
+                  name="home_goals"
+                  value={match.home_goals}
+                  class="w-12 rounded-md border bd-hair bg-white px-2 py-1.5 text-center text-[13px] t-ink"
+                />
+                <span class="t-faint">:</span>
+                <input
+                  type="number"
+                  name="away_goals"
+                  value={match.away_goals}
+                  class="w-12 rounded-md border bd-hair bg-white px-2 py-1.5 text-center text-[13px] t-ink"
+                />
+              </div>
+
+              <select
+                name="status"
+                class="shrink-0 rounded-md border bd-hair bg-white px-2 py-1.5 text-[13px] t-ink"
+              >
+                <%= for status <- @statuses do %>
+                  <option value={status} selected={status == match.status}><%= status_label(status) %></option>
+                <% end %>
+              </select>
+
+              <button class="shrink-0 rounded-md bg-ink px-3 py-1.5 text-[13px] font-semibold t-panel hover:opacity-90 transition-opacity">
+                Save
+              </button>
+            </.form>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  </div>
+</div>

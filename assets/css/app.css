@@ -9,3 +9,74 @@
     width: 1.333333em;
     line-height: 1em;
 }
+
+/* ===========================================================================
+   Scoreboard — refined light standings table
+   =========================================================================== */
+.scoreboard {
+    --paper: #f1efe8;
+    --panel: #fbfaf6;
+    --panel-2: #f6f4ed;
+    --line: rgba(43, 42, 38, 0.10);
+    --ink: #2c2b26;
+    --ink-soft: #6f6d64;
+    --ink-faint: #b1afa4;
+    --accent: #5f7d5b;
+    --neg: #b06046;
+    --gold: #b08a3e;
+    --silver: #97999c;
+    --bronze: #a9744f;
+
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    color: var(--ink);
+    background: var(--paper);
+}
+
+.font-display {
+    font-family: "Anton", "JetBrains Mono", sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+/* semantic theme utilities (this Tailwind build can't emit [var(--x)] arbitraries) */
+.t-ink { color: var(--ink); }
+.t-soft { color: var(--ink-soft); }
+.t-faint { color: var(--ink-faint); }
+.t-accent { color: var(--accent); }
+.t-panel { color: var(--panel); }
+.bg-paper { background-color: var(--paper); }
+.bg-panel { background-color: var(--panel); }
+.bg-panel-2 { background-color: var(--panel-2); }
+.bg-accent { background-color: var(--accent); }
+.bg-ink { background-color: var(--ink); }
+.bd-hair { border-color: var(--line); }
+
+/* score tone — neutral by default, only losses are gently flagged */
+.score-pos { color: var(--ink); }
+.score-neg { color: var(--neg); }
+.score-zero { color: var(--ink-faint); }
+
+/* sticky cell backings */
+.sb-corner { background: var(--panel-2); }
+.sb-head { background: rgba(251, 250, 246, 0.94); }
+.sb-rail { background: var(--panel); }
+.scoreboard tbody tr:hover .sb-rail { background: var(--panel-2); }
+.scoreboard tbody tr:hover td { background: rgba(95, 125, 91, 0.05); }
+
+/* podium accents on the standings rail */
+.rail-1 { box-shadow: inset 3px 0 0 var(--gold); }
+.rail-2 { box-shadow: inset 3px 0 0 var(--silver); }
+.rail-3 { box-shadow: inset 3px 0 0 var(--bronze); }
+.rank-1 { color: var(--gold); }
+.rank-2 { color: var(--silver); }
+.rank-3 { color: var(--bronze); }
+
+/* themed scrollbars */
+.sb-scroll::-webkit-scrollbar { height: 11px; width: 11px; }
+.sb-scroll::-webkit-scrollbar-track { background: var(--paper); }
+.sb-scroll::-webkit-scrollbar-thumb {
+    background: #d3d0c6;
+    border-radius: 999px;
+    border: 3px solid var(--paper);
+}
+.sb-scroll::-webkit-scrollbar-thumb:hover { background: #bfbcb1; }

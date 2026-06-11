@@ -17,10 +17,25 @@ defmodule EnnustusWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :admin do
+    plug :admin_basic_auth
+  end
+
   scope "/", EnnustusWeb do
     pipe_through :browser
 
     live "/", Games.PredictionsLive
+  end
+
+  scope "/admin", EnnustusWeb do
+    pipe_through [:browser, :admin]
+
+    live "/", Admin.MatchesLive
+  end
+
+  defp admin_basic_auth(conn, _opts) do
+    credentials = Application.fetch_env!(:ennustus, :admin_auth)
+    Plug.BasicAuth.basic_auth(conn, credentials)
   end
 
   # Other scopes may use custom stacks.

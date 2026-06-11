@@ -30,6 +30,14 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6"), do: [:inet6], else: []
 
+  config :ennustus, :admin_auth,
+    username:
+      System.get_env("ADMIN_USERNAME") ||
+        raise("environment variable ADMIN_USERNAME is missing."),
+    password:
+      System.get_env("ADMIN_PASSWORD") ||
+        raise("environment variable ADMIN_PASSWORD is missing.")
+
   config :ennustus, Ennustus.Repo,
     # ssl: true,
     url: database_url,

@@ -75,6 +75,48 @@ defmodule Ennustus.Games do
   end
 
   @doc """
+  Returns the team that won a finished match, or nil when the match is missing,
+  unfinished, scoreless or a draw.
+  """
+  def actual_winner(game_number) do
+    case Repo.get_by(Match, game_number: game_number) do
+      %Match{status: :finished, home_goals: hg, away_goals: ag} = match
+      when is_integer(hg) and is_integer(ag) ->
+        cond do
+          hg > ag -> match.home_team
+          ag > hg -> match.away_team
+          true -> nil
+        end
+
+      _ ->
+        nil
+    end
+  end
+
+  @champion_question 9
+  @third_place_question 10
+
+  @doc """
+  Recomputes the champion (game 104) and third-place (game 103) bonus picks,
+  marking each player's question correct when their answer matches the actual
+  winner. Deciding matches that are not finished are left untouched.
+  """
+  def apply_winner_bonuses do
+    mark_question_correctness(@champion_question, actual_winner(104))
+    mark_question_correctness(@third_place_question, actual_winner(103))
+  end
+
+  defp mark_question_correctness(_question_number, nil), do: :noop
+
+  defp mark_question_correctness(question_number, winning_team) do
+    from(q in Question, where: q.question_number == ^question_number and q.answer == ^winning_team)
+    |> Repo.update_all(set: [correct: true])
+
+    from(q in Question, where: q.question_number == ^question_number and q.answer != ^winning_team)
+    |> Repo.update_all(set: [correct: false])
+  end
+
+  @doc """
   Gets a single prediction.
 
   Raises `Ecto.NoResultsError` if the Prediction does not exist.

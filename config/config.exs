@@ -59,6 +59,10 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Credentials for the basic-auth protected admin page. The development default
+# is overridden in config/runtime.exs for production via env vars.
+config :ennustus, :admin_auth, username: "admin", password: "admin"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
