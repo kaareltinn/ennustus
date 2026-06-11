@@ -9,11 +9,11 @@
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
 #   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20210902-slim - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: hexpm/elixir:1.14.0-erlang-24.2.1-debian-bullseye-20210902-slim
+#   - Ex: hexpm/elixir:1.18.4-erlang-28.1-debian-bookworm-20260610-slim
 #
-ARG ELIXIR_VERSION=1.14.0
-ARG OTP_VERSION=24.2.1
-ARG DEBIAN_VERSION=bullseye-20210902-slim
+ARG ELIXIR_VERSION=1.18.4
+ARG OTP_VERSION=28.1
+ARG DEBIAN_VERSION=bookworm-20260610-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
@@ -67,7 +67,7 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
-RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales \
+RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses6 locales \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
