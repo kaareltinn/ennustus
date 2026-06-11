@@ -3,7 +3,7 @@ defmodule Ennustus.Games.Scorer do
     Enum.reduce(predictions, 0, fn %{score: score}, acc -> acc + score end)
   end
 
-  def score(matches, predictions, questions, winner_predictions) do
+  def score(matches, predictions, questions, winner_predictions, third_place_predictions) do
     matches_by_game_number =
       matches
       |> Enum.group_by(fn %{game_number: game_number} -> game_number end)
@@ -17,7 +17,7 @@ defmodule Ennustus.Games.Scorer do
         Enum.map(predictions, fn prediction ->
           [match] = matches_by_game_number[prediction.game_number]
 
-          if prediction.game_number < 37 do
+          if prediction.game_number < 73 do
             Map.merge(
               prediction,
               %{
@@ -36,7 +36,11 @@ defmodule Ennustus.Games.Scorer do
 
       questions_score = Map.get(questions, player_id, [%{score: 0}]) |> List.first()
       winner_score = score_winner(player_id, winner_predictions)
-      total = total_score(scored_predictions) + questions_score.score + winner_score
+      third_place_score = score_third_place(player_id, third_place_predictions)
+
+      total =
+        total_score(scored_predictions) + questions_score.score + winner_score +
+          third_place_score
 
       [[{player_id, name}, total, scored_predictions] | acc]
     end)
@@ -88,6 +92,15 @@ defmodule Ennustus.Games.Scorer do
     prediction = winner_predictions[player_id]
 
     case prediction do
+      %{correct: true} -> 30
+      _ -> 0
+    end
+  end
+
+  def score_third_place(player_id, third_place_predictions) do
+    prediction = third_place_predictions[player_id]
+
+    case prediction do
       %{correct: true} -> 25
       _ -> 0
     end
@@ -111,19 +124,22 @@ defmodule Ennustus.Games.Scorer do
     end
   end
 
-  defp get_playoff_stage(game_number) when game_number in 1..36, do: :group
-  defp get_playoff_stage(game_number) when game_number in 37..44, do: :eigth
-  defp get_playoff_stage(game_number) when game_number in 45..48, do: :quarter
-  defp get_playoff_stage(game_number) when game_number in 49..50, do: :semi
-  # defp get_playoff_stage(63), do: :third
-  defp get_playoff_stage(51), do: :final
+  defp get_playoff_stage(game_number) when game_number in 1..72, do: :group
+  defp get_playoff_stage(game_number) when game_number in 73..88, do: :round_of_32
+  defp get_playoff_stage(game_number) when game_number in 89..96, do: :round_of_16
+  defp get_playoff_stage(game_number) when game_number in 97..100, do: :quarter
+  defp get_playoff_stage(game_number) when game_number in 101..102, do: :semi
+  defp get_playoff_stage(103), do: :third
+  defp get_playoff_stage(104), do: :final
 
   defp get_playoff_stage_coef(stage) do
     case stage do
-      :eigth -> 10
-      :quarter -> 12
-      :semi -> 15
-      :final -> 18
+      :round_of_32 -> 10
+      :round_of_16 -> 12
+      :quarter -> 15
+      :semi -> 18
+      :third -> 22
+      :final -> 20
     end
   end
 end

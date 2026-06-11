@@ -11,8 +11,8 @@ defmodule Ennustus.Games do
   alias Ennustus.Games.Match
   alias Ennustus.Games.Question
 
-  # @games_order [49..64, 1..48] |> Enum.flat_map(&Enum.to_list/1)
-  @games_order [[51], 49..50, 48..45, 37..44, 1..36] |> Enum.flat_map(&Enum.to_list/1)
+  @games_order [[104], [103], 101..102, 97..100, 89..96, 73..88, 1..72]
+               |> Enum.flat_map(&Enum.to_list/1)
 
   @doc """
   Returns the list of predictions.
@@ -195,6 +195,15 @@ defmodule Ennustus.Games do
     query =
       from q in Question,
         where: q.question_number == 9
+
+    Repo.all(query)
+    |> Map.new(&{&1.player_id, &1})
+  end
+
+  def third_place_predictions do
+    query =
+      from q in Question,
+        where: q.question_number == 10
 
     Repo.all(query)
     |> Map.new(&{&1.player_id, &1})

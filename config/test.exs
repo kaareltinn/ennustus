@@ -13,6 +13,7 @@ config :ennustus, Ennustus.Repo,
   password: "postgres",
   hostname: "localhost",
   database: "ennustus_test#{System.get_env("MIX_TEST_PARTITION")}",
+  port: 5436,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 

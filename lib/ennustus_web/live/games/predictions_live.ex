@@ -8,9 +8,16 @@ defmodule EnnustusWeb.Games.PredictionsLive do
     predictions = Ennustus.Games.predictions_by_player()
     questions = Ennustus.Games.question_scores()
     winner_predictions = Ennustus.Games.winner_predictions()
+    third_place_predictions = Ennustus.Games.third_place_predictions()
 
     scored_predictions =
-      Ennustus.Games.Scorer.score(matches, predictions, questions, winner_predictions)
+      Ennustus.Games.Scorer.score(
+        matches,
+        predictions,
+        questions,
+        winner_predictions,
+        third_place_predictions
+      )
 
     socket =
       socket
