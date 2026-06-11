@@ -86,7 +86,9 @@ ENV MIX_ENV="prod"
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/ennustus ./
 
-USER nobody
+# Run as root so the app can write to the SQLite data volume, which Fly mounts
+# at /data owned by root. (For a single-tenant hobby VM this is acceptable; the
+# stricter alternative is an entrypoint that chowns /data then drops to nobody.)
 
 CMD ["/app/bin/server"]
 
