@@ -1,5 +1,5 @@
 defmodule EnnustusWeb.UserSessionControllerTest do
-  use EnnustusWeb.ConnCase, async: true
+  use EnnustusWeb.ConnCase, async: false
 
   import Ennustus.AccountsFixtures
 

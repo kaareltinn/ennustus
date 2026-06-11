@@ -34,4 +34,9 @@ npm-debug.log
 
 /priv/repo/data/
 
+# SQLite database files (dev/test)
+*.db
+*.db-shm
+*.db-wal
+
 .secrets

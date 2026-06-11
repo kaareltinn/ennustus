@@ -1,5 +1,5 @@
 defmodule EnnustusWeb.UserAuthTest do
-  use EnnustusWeb.ConnCase, async: true
+  use EnnustusWeb.ConnCase, async: false
 
   alias Phoenix.LiveView
   alias Ennustus.Accounts

@@ -14,6 +14,11 @@ defmodule Ennustus.Games do
   @games_order [[104], [103], 101..102, 97..100, 89..96, 73..88, 1..72]
                |> Enum.flat_map(&Enum.to_list/1)
 
+  @order_index @games_order |> Enum.with_index() |> Map.new()
+
+  # Display position of a game number within @games_order (DB-agnostic ordering).
+  defp order_index(game_number), do: Map.get(@order_index, game_number, length(@games_order))
+
   @doc """
   Returns the list of predictions.
 
@@ -28,11 +33,9 @@ defmodule Ennustus.Games do
   end
 
   def list_matches do
-    query =
-      from m in Match,
-        order_by: fragment("array_position(?, ?)", ^@games_order, m.game_number)
-
-    Repo.all(query)
+    Match
+    |> Repo.all()
+    |> Enum.sort_by(&order_index(&1.game_number))
   end
 
   defp list_matches_by_game_numbers(game_numbers) do
@@ -198,11 +201,10 @@ defmodule Ennustus.Games do
   end
 
   def predictions_by_player do
-    query = from pl in Player, join: pre in Prediction, on: pl.id == pre.player_id
-
     query =
-      from [pl, pre] in query,
-        order_by: fragment("array_position(?, ?)", ^@games_order, pre.game_number),
+      from pl in Player,
+        join: pre in Prediction,
+        on: pl.id == pre.player_id,
         select: %{
           name: pl.name,
           game_number: pre.game_number,
@@ -215,6 +217,7 @@ defmodule Ennustus.Games do
 
     Repo.all(query)
     |> Enum.group_by(fn pred -> {pred.player_id, pred.name} end)
+    |> Map.new(fn {key, preds} -> {key, Enum.sort_by(preds, &order_index(&1.game_number))} end)
   end
 
   def question_scores do

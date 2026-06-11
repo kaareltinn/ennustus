@@ -1,15 +1,11 @@
 import Config
 
-# Configure your database
+# Configure your database (SQLite)
 config :ennustus, Ennustus.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "ennustus_dev",
-  port: 5439,
+  database: Path.expand("../ennustus_dev.db", __DIR__),
+  pool_size: 5,
   stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  show_sensitive_data_on_connection_error: true
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

@@ -9,13 +9,10 @@ config :bcrypt_elixir, :log_rounds, 1
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :ennustus, Ennustus.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "ennustus_test#{System.get_env("MIX_TEST_PARTITION")}",
-  port: 5439,
+  database: Path.expand("../ennustus_test#{System.get_env("MIX_TEST_PARTITION")}.db", __DIR__),
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10
+  pool_size: 5,
+  show_sensitive_data_on_connection_error: true
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

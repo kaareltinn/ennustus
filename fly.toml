@@ -1,16 +1,21 @@
 # fly.toml file generated for ennustus on 2022-11-25T15:00:22+02:00
 
-app = "ennustus"
+app = "mm2026"
 kill_signal = "SIGTERM"
 kill_timeout = 5
 processes = []
 
-[deploy]
-  release_command = "/app/bin/migrate"
+# Migrations run on app boot (see Ennustus.Application); SQLite lives on the
+# mounted volume below, which the release_command machine would not have.
 
 [env]
   PHX_HOST = "mm2026.fly.dev"
   PORT = "8080"
+  DATABASE_PATH = "/data/ennustus.db"
+
+[mounts]
+  source = "data"
+  destination = "/data"
 
 [experimental]
   allowed_public_ports = []
