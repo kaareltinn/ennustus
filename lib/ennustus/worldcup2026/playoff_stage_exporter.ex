@@ -19,11 +19,8 @@ defmodule Ennustus.Worldcup2026.PlayoffStageExporter do
     {~w(K), 96, 98, 1, 3}
   ]
 
-  # The 2026 workbook has ~29 sheets and we only need the first ("World Cup").
-  # Extracting every sheet (multi_extract/2 with a nil index) parses them all
-  # into memory at once and OOMs on small machines, so we extract just sheet 0.
   def load_file(filename) do
-    Xlsxir.multi_extract(filename, 0, false, extract_to: :memory)
+    Ennustus.Worldcup2026.Workbook.load(filename)
   end
 
   def parse_name(filename) do
