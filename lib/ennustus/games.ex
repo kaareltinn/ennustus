@@ -11,8 +11,15 @@ defmodule Ennustus.Games do
   alias Ennustus.Games.Match
   alias Ennustus.Games.Question
 
-  @games_order [[104], [103], 101..102, 97..100, 89..96, 73..88, 1..72]
-               |> Enum.flat_map(&Enum.to_list/1)
+  @games_order [
+    1..72, # group stage
+    73..88, # 1/16
+    89..96, # 1/8
+    97..100, # 1/4
+    101..102, # 1/2
+    [103], # third place
+    [104] # final
+  ] |> Enum.flat_map(&Enum.to_list/1)
 
   @order_index @games_order |> Enum.with_index() |> Map.new()
 
