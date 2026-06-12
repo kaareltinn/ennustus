@@ -33,9 +33,9 @@
             <% st = stage(match.game_number) %>
             <th
               id={"match-#{match.id}"}
-              class="sb-head sticky top-0 z-20 align-bottom px-2 pt-0 pb-2 border-b border-r bd-hair min-w-[80px]"
+              class="sb-head sticky top-0 z-20 align-bottom px-2 pt-2 pb-2 border-b border-r bd-hair min-w-[80px]"
             >
-              <div class={"h-1 -mx-2 mb-2 #{stage_band(st)}"}></div>
+              <div class={"absolute inset-x-0 top-0 h-1 #{stage_band(st)}"}></div>
               <div class="text-[9px] t-faint tracking-wider">#<%= match.game_number %></div>
               <%= if match.home_team && match.away_team do %>
                 <div class="flex items-center justify-center gap-1 whitespace-nowrap text-[11px] t-soft font-medium">
