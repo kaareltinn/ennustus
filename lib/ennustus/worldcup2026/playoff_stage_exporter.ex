@@ -52,7 +52,7 @@ defmodule Ennustus.Worldcup2026.PlayoffStageExporter do
       for {base_cols, number_row, team_row, home_offset, away_offset} <- @rounds,
           base_col <- base_cols do
         %{
-          game_number: data_map["#{base_col}#{number_row}"] |> trunc(),
+          game_number: to_game_number(data_map["#{base_col}#{number_row}"]),
           home_team: data_map["#{shift(base_col, home_offset)}#{team_row}"],
           away_team: data_map["#{shift(base_col, away_offset)}#{team_row}"],
           player_id: player.id,
@@ -82,6 +82,11 @@ defmodule Ennustus.Worldcup2026.PlayoffStageExporter do
   defp close_file(ref) do
     Xlsxir.close(ref)
   end
+
+  # Game-number cells are numeric in most workbooks but text-formatted in some,
+  # where Xlsxir returns the value as a string ("74"). Coerce either to an int.
+  defp to_game_number(value) when is_number(value), do: trunc(value)
+  defp to_game_number(value) when is_binary(value), do: value |> String.trim() |> String.to_integer()
 
   # Spreadsheet column-letter arithmetic, e.g. shift("Z", 1) == "AA".
   defp shift(col, offset), do: number_to_col(col_to_number(col) + offset)
