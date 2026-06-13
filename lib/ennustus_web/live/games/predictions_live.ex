@@ -19,13 +19,27 @@ defmodule EnnustusWeb.Games.PredictionsLive do
         third_place_predictions
       )
 
+    matches_index = Map.new(matches, &{&1.game_number, &1})
+
     socket =
       socket
       |> assign(:predictions, scored_predictions)
       |> assign(:winner_predictions, winner_predictions)
       |> assign(:matches, matches)
+      |> assign(:matches_index, matches_index)
+      |> assign(:selected_player, nil)
 
     {:ok, socket}
+  end
+
+  def handle_event("select_player", %{"id" => player_id_str}, socket) do
+    player_id = String.to_integer(player_id_str)
+    selected = Enum.find(socket.assigns.predictions, fn [{pid, _}, _, _] -> pid == player_id end)
+    {:noreply, assign(socket, :selected_player, selected)}
+  end
+
+  def handle_event("close_player", _params, socket) do
+    {:noreply, assign(socket, :selected_player, nil)}
   end
 
   @doc "Tone class for a points value."
