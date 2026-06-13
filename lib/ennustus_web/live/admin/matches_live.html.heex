@@ -43,6 +43,20 @@
       </button>
     </section>
 
+    <section class="rounded-xl border bd-hair bg-panel p-5 mb-10">
+      <h2 class="font-display text-xl t-ink mb-1">Standings override</h2>
+      <p class="text-xs t-faint mb-4">
+        When on, Remi Kõivik's rendered total on the public standings is forced to −67.
+        Underlying scores are unchanged.
+      </p>
+      <button
+        phx-click="toggle_score_override"
+        class={"rounded-lg px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 #{if @score_override, do: "bg-accent text-white", else: "bg-ink t-panel"}"}
+      >
+        <%= if @score_override, do: "On — click to disable", else: "Off — click to enable" %>
+      </button>
+    </section>
+
     <%= for {st, games} <- @grouped do %>
       <section class="mb-8">
         <div class="flex items-center gap-2.5 mb-2 px-1">

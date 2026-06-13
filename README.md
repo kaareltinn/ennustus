@@ -94,8 +94,7 @@ mix run -e 'Ennustus.Release.seed_worldcup2026()'
 mix run -e 'Ennustus.Worldcup2026.QuestionsExporter.process()'
 
 # production, extra questions only (starts the repo, then imports):
-fly ssh console --app <app> --command \
-  "/app/bin/ennustus eval 'Ennustus.Release.seed_questions()'"
+fly ssh console --app mm2026 --command "/app/bin/ennustus eval 'Ennustus.Release.seed_questions()'"
 ```
 
 ## Admin page

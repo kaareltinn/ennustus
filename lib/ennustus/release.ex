@@ -108,16 +108,35 @@ defmodule Ennustus.Release do
     end
   end
 
-  defp import_entrant(path) do
+  @doc """
+  Imports one entrant's workbook (group + playoff predictions and the champion /
+  third-place picks), skipping players already present.
+
+  The three exporters run inside a single transaction so a crash mid-import
+  (e.g. a large workbook exhausting memory) rolls back the player row instead of
+  leaving a half-imported player that future seeds would skip as "already
+  imported". A failed import is logged and the seed continues with the next file.
+  """
+  def import_entrant(path) do
     name = GroupStageExporter.parse_name(path)
 
     if Repo.get_by(Player, name: name) do
       IO.puts("#{name}: already imported — skipping.")
     else
-      GroupStageExporter.process(path)
-      PlayoffStageExporter.process(path)
-      WinnerExporter.process(path)
-      IO.puts("#{name}: imported predictions + winner picks.")
+      try do
+        Repo.transaction(fn ->
+          GroupStageExporter.process(path)
+          PlayoffStageExporter.process(path)
+          WinnerExporter.process(path)
+        end)
+
+        IO.puts("#{name}: imported predictions + winner picks.")
+      rescue
+        e ->
+          IO.puts(
+            "#{name}: import failed — rolled back, will retry next seed. (#{Exception.message(e)})"
+          )
+      end
     end
   end
 

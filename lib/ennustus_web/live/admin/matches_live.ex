@@ -44,6 +44,12 @@ defmodule EnnustusWeb.Admin.MatchesLive do
      |> assign_data()}
   end
 
+  def handle_event("toggle_score_override", _params, socket) do
+    Games.set_score_override(!socket.assigns.score_override)
+
+    {:noreply, assign_data(socket)}
+  end
+
   def status_label(:not_started), do: "Not started"
   def status_label(:in_progress), do: "In progress"
   def status_label(:finished), do: "Finished"
@@ -64,5 +70,6 @@ defmodule EnnustusWeb.Admin.MatchesLive do
     |> assign(:champion, Games.actual_winner(104))
     |> assign(:third_place, Games.actual_winner(103))
     |> assign(:extra_questions, Games.extra_questions())
+    |> assign(:score_override, Games.score_override_enabled?())
   end
 end

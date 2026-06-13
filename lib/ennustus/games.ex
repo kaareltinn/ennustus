@@ -11,7 +11,11 @@ defmodule Ennustus.Games do
   alias Ennustus.Games.Match
   alias Ennustus.Games.Question
   alias Ennustus.Games.AnswerKey
+  alias Ennustus.Settings
   alias Ennustus.Worldcup2026.QuestionsExporter
+
+  # Admin toggle for the display-only standings override (see Scorer).
+  @score_override_key "standings_score_override"
 
   # The 15 extra questions (imported by QuestionsExporter) are stored as
   # question_number 11–25; each correct answer is worth 10 points.
@@ -280,6 +284,14 @@ defmodule Ennustus.Games do
     Enum.map(QuestionsExporter.questions(), fn {number, title} ->
       %{number: number, title: title, answer: Map.get(keys, number)}
     end)
+  end
+
+  @doc "Whether the display-only standings score override is enabled."
+  def score_override_enabled?, do: Settings.get_boolean(@score_override_key)
+
+  @doc "Enables or disables the display-only standings score override."
+  def set_score_override(enabled) when is_boolean(enabled) do
+    Settings.set_boolean(@score_override_key, enabled)
   end
 
   @doc """

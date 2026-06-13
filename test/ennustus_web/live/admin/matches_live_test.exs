@@ -73,6 +73,15 @@ defmodule EnnustusWeb.Admin.MatchesLiveTest do
     assert Repo.reload!(q).correct == true
   end
 
+  test "toggling the standings override persists the flag", %{conn: conn} do
+    refute Games.score_override_enabled?()
+
+    {:ok, view, _html} = conn |> basic_auth() |> live(~p"/admin")
+    view |> element("button", "Off — click to enable") |> render_click()
+
+    assert Games.score_override_enabled?()
+  end
+
   test "apply winner bonuses marks matching champion pick correct", %{conn: conn} do
     Repo.insert!(%Match{
       game_number: 104,

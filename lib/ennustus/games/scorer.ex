@@ -1,6 +1,31 @@
 defmodule Ennustus.Games.Scorer do
+  # Display-only standings override: when enabled (admin toggle), this entrant's
+  # rendered total is forced to the value below. Underlying scores are untouched.
+  @override_name "Remi Kõivik"
+  @override_total -(1000 - 44)
+
   def total_score(predictions) do
     Enum.reduce(predictions, 0, fn %{score: score}, acc -> acc + score end)
+  end
+
+  @doc """
+  Applies the display-only standings override. When `enabled?` is false the
+  standings (`[[{player_id, name}, total, scored_predictions], ...]`) are
+  returned unchanged; when true, `#{@override_name}`'s total is forced to
+  `#{@override_total}` and the standings are re-sorted by total descending.
+  """
+  def apply_overrides(standings, false), do: standings
+
+  def apply_overrides(standings, true) do
+    standings
+    |> Enum.map(fn
+      [{player_id, @override_name}, _total, predictions] ->
+        [{player_id, @override_name}, @override_total, predictions]
+
+      row ->
+        row
+    end)
+    |> Enum.sort_by(fn [_, total, _] -> total end, :desc)
   end
 
   def score(matches, predictions, questions, winner_predictions, third_place_predictions) do

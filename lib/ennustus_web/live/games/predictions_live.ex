@@ -18,6 +18,7 @@ defmodule EnnustusWeb.Games.PredictionsLive do
         winner_predictions,
         third_place_predictions
       )
+      |> Ennustus.Games.Scorer.apply_overrides(Ennustus.Games.score_override_enabled?())
 
     socket =
       socket

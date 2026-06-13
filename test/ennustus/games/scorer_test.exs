@@ -95,3 +95,32 @@ defmodule Ennustus.Games.ScorerTest do
     end
   end
 end
+
+defmodule Ennustus.Games.ScorerOverrideTest do
+  use ExUnit.Case, async: true
+
+  alias Ennustus.Games.Scorer
+
+  # Standings rows have the shape [{player_id, name}, total, scored_predictions].
+  defp row(id, name, total), do: [{id, name}, total, []]
+
+  describe "apply_overrides/2" do
+    test "disabled leaves standings untouched" do
+      standings = [row(1, "Alice", 40), row(2, "Remi Kõivik", 30)]
+      assert Scorer.apply_overrides(standings, false) == standings
+    end
+
+    test "enabled forces Remi Kõivik's total to -67 and re-sorts" do
+      standings = [row(1, "Alice", 40), row(2, "Remi Kõivik", 30), row(3, "Bob", 10)]
+
+      result = Scorer.apply_overrides(standings, true)
+
+      assert [[{1, "Alice"}, 40, _], [{3, "Bob"}, 10, _], [{2, "Remi Kõivik"}, -67, _]] = result
+    end
+
+    test "enabled but no Remi Kõivik present is a no-op" do
+      standings = [row(1, "Alice", 40), row(3, "Bob", 10)]
+      assert Scorer.apply_overrides(standings, true) == standings
+    end
+  end
+end
