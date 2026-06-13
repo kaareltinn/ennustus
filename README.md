@@ -136,6 +136,23 @@ fly deploy
 fly ssh console --app <app> --command "/app/bin/ennustus eval 'Ennustus.Release.seed()'"
 ```
 
+### Remote IEx console
+
+To open an IEx shell **attached to the running production node** (live app and
+state, e.g. to re-run a seed after deploying):
+
+```sh
+fly ssh console --pty -C "/app/bin/ennustus remote" --app mm2026
+```
+
+Use `remote`, not `start_iex` — `remote` joins the live node, whereas
+`start_iex` would boot a second instance (double migrations/schedulers). Detach
+without stopping the node with **Ctrl+C twice** (or **Ctrl+\\**). Inside:
+
+```elixir
+Ennustus.Release.seed_worldcup2026()   # idempotent; re-imports any new entrants
+```
+
 Notes:
 
 - Commit the `priv/data/worldcup2026/*.xlsx` files so they are baked into the
