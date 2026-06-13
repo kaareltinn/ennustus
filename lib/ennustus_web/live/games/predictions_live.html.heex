@@ -10,7 +10,7 @@
         </h1>
       </div>
 
-      <div class="flex flex-wrap gap-x-4 gap-y-2 text-[11px] uppercase tracking-wider t-soft">
+      <div class="hidden sm:flex flex-wrap gap-x-4 gap-y-2 text-[11px] uppercase tracking-wider t-soft">
         <%= for st <- [:group, :r32, :r16, :qf, :sf, :third, :final] do %>
           <span class="inline-flex items-center gap-1.5">
             <span class={"h-2.5 w-2.5 rounded-full #{stage_band(st)}"}></span>
@@ -28,7 +28,8 @@
     </.link>
   </header>
 
-  <div class="relative z-10 overflow-auto sb-scroll border-t bd-hair">
+  <%!-- ── Desktop table (hidden on mobile) ─────────────────────────────── --%>
+  <div class="hidden sm:block relative z-10 overflow-auto sb-scroll border-t bd-hair">
     <table class="border-separate border-spacing-0 text-sm">
       <thead>
         <tr>
@@ -112,4 +113,122 @@
       </tbody>
     </table>
   </div>
+
+  <%!-- ── Mobile card list (hidden on desktop) ──────────────────────────── --%>
+  <div class="sm:hidden border-t bd-hair">
+    <div class="px-4 py-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] t-faint border-b bd-hair">
+      <span>Rank</span>
+      <span class="flex-1 text-center">Player</span>
+      <span>Pts</span>
+    </div>
+    <%= for {[{player_id, player_name}, total, _games], index} <- Enum.with_index(@predictions) do %>
+      <button
+        phx-click="select_player"
+        phx-value-id={player_id}
+        class={"w-full flex items-center gap-3 px-4 py-3 border-b bd-hair text-left active:bg-panel-2 #{rail_class(index)}"}
+      >
+        <span class={"font-display text-2xl w-8 text-center leading-none shrink-0 #{rank_class(index)}"}>
+          <%= index + 1 %>
+        </span>
+        <div class="flex-1 min-w-0">
+          <div class="truncate text-[13px] font-medium t-ink"><%= player_name %></div>
+          <% winner = @winner_predictions[player_id] %>
+          <div class="flex items-center gap-1 text-[11px] t-soft mt-0.5">
+            <%= if winner do %>
+              <span class={"fi fi-#{iso_code_2(winner.answer)}"}></span>
+              <span class="truncate"><%= winner.answer %></span>
+            <% else %>
+              <span class="t-faint">—</span>
+            <% end %>
+          </div>
+        </div>
+        <span class="font-display text-2xl leading-none t-accent shrink-0"><%= total %></span>
+        <span class="t-faint text-lg shrink-0">›</span>
+      </button>
+    <% end %>
+  </div>
+
+  <%!-- ── Mobile bottom sheet (selected player detail) ───────────────────── --%>
+  <%= if @selected_player do %>
+    <% [{player_id, player_name}, total, games] = @selected_player %>
+    <% winner = @winner_predictions[player_id] %>
+    <% sorted_games = Enum.sort_by(games, & &1.game_number) %>
+    <div class="fixed inset-0 z-50 sm:hidden flex items-end">
+      <div class="absolute inset-0 bg-black/50" phx-click="close_player"></div>
+      <div class="relative w-full bg-panel rounded-t-2xl max-h-[85vh] flex flex-col shadow-2xl">
+
+        <div class="flex-none px-4 pt-3 pb-4 border-b bd-hair">
+          <div class="w-10 h-1 rounded-full mx-auto mb-4" style="background: var(--line);"></div>
+          <div class="flex items-start gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="text-[10px] uppercase tracking-[0.3em] t-faint mb-0.5">Mängija</div>
+              <div class="font-display text-xl t-ink leading-tight truncate"><%= player_name %></div>
+              <%= if winner do %>
+                <div class="flex items-center gap-1 text-[11px] t-soft mt-1">
+                  <span class={"fi fi-#{iso_code_2(winner.answer)}"}></span>
+                  <span><%= winner.answer %></span>
+                </div>
+              <% end %>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-[10px] uppercase tracking-[0.3em] t-faint mb-0.5">Kokku</div>
+              <div class="font-display text-3xl t-accent leading-none"><%= total %></div>
+            </div>
+            <button phx-click="close_player" class="shrink-0 p-1 t-faint text-xl leading-none">✕</button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto overscroll-contain">
+          <%= for st <- [:group, :r32, :r16, :qf, :sf, :third, :final] do %>
+            <% stage_games = Enum.filter(sorted_games, fn g -> stage(g.game_number) == st end) %>
+            <%= if stage_games != [] do %>
+              <div class="px-4 py-1.5 text-[10px] uppercase tracking-[0.25em] t-faint sticky top-0 bg-paper border-b bd-hair flex items-center gap-2">
+                <span class={"inline-block w-2 h-2 rounded-full shrink-0 #{stage_band(st)}"}></span>
+                <%= stage_label(st) %>
+              </div>
+              <%= for game <- stage_games do %>
+                <% match = @matches_index[game.game_number] %>
+                <div class="flex items-center gap-2 px-4 py-2.5 border-b bd-hair">
+                  <div class="text-[10px] t-faint w-7 text-right shrink-0">#<%= game.game_number %></div>
+
+                  <div class="flex-1 min-w-0">
+                    <%= if match && match.home_team && match.away_team do %>
+                      <div class="flex items-center gap-1 text-[12px]">
+                        <span class={"fi fi-#{iso_code_2(match.home_team)}"}></span>
+                        <%= if match.status == :finished do %>
+                          <span class="t-ink text-[11px] font-medium"><%= match.home_goals %>–<%= match.away_goals %></span>
+                        <% else %>
+                          <span class="t-faint text-[11px]">v</span>
+                        <% end %>
+                        <span class={"fi fi-#{iso_code_2(match.away_team)}"}></span>
+                      </div>
+                    <% else %>
+                      <div class="text-[11px] t-faint"><%= stage_label(st) %></div>
+                    <% end %>
+                  </div>
+
+                  <div class="text-[11px] t-soft shrink-0">
+                    <%= if game.game_number < 73 do %>
+                      <span><%= game.home_goals %>:<%= game.away_goals %></span>
+                    <% else %>
+                      <div class="flex items-center gap-0.5">
+                        <span class={"fi fi-#{iso_code_2(game.home_team)}"}></span>
+                        <span class="t-faint">/</span>
+                        <span class={"fi fi-#{iso_code_2(game.away_team)}"}></span>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <div class={"font-display text-base w-8 text-right shrink-0 #{score_class(game.score)}"}>
+                    <%= game.score %>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
 </div>
