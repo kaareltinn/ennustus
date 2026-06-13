@@ -1,0 +1,79 @@
+<div class="scoreboard -m-2 min-h-screen">
+  <header class="relative z-10 px-5 sm:px-8 pt-10 pb-6">
+    <p class="t-accent tracking-[0.4em] text-[11px] sm:text-xs mb-2">
+      ENNUSTUSLIIGA · LISAKÜSIMUSED
+    </p>
+    <h1 class="font-display t-ink text-5xl sm:text-7xl leading-[0.85]">
+      EXTRA QUESTIONS
+    </h1>
+    <p class="text-xs t-faint mt-3">
+      Each correct answer is worth 10 points. Correct answers are highlighted.
+    </p>
+    <.link
+      navigate={~p"/"}
+      class="inline-flex items-center gap-1.5 mt-4 text-[11px] uppercase tracking-[0.2em] t-accent hover:opacity-70 transition-opacity"
+    >
+      ← Punktitabel
+    </.link>
+  </header>
+
+  <div class="relative z-10 overflow-auto sb-scroll border-t bd-hair">
+    <table class="border-separate border-spacing-0 text-sm">
+      <thead>
+        <tr>
+          <th class="sb-corner sticky left-0 top-0 z-30 text-left align-bottom px-4 py-3 border-b border-r bd-hair w-[16rem] min-w-[16rem]">
+            <span class="text-[10px] uppercase tracking-[0.3em] t-faint">Rank · Player</span>
+            <span class="block t-accent font-display text-2xl leading-none mt-1">PTS</span>
+          </th>
+          <%= for q <- @questions do %>
+            <th class="sb-head sticky top-0 z-20 align-bottom px-2 pt-2 pb-2 border-b border-r bd-hair min-w-[120px]">
+              <div class="text-[9px] t-faint tracking-wider">#<%= q.number %></div>
+              <div class="text-[11px] t-soft font-medium leading-tight whitespace-nowrap">
+                <%= q.title %>
+              </div>
+              <div class="text-[11px] font-semibold leading-tight mt-1 score-pos whitespace-nowrap">
+                <%= if q.answer in [nil, ""] do %>
+                  <span class="t-faint">—</span>
+                <% else %>
+                  <%= q.answer %>
+                <% end %>
+              </div>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+
+      <tbody>
+        <%= for {entrant, index} <- Enum.with_index(@entrants) do %>
+          <tr>
+            <th class={"sb-rail sticky left-0 z-10 text-left px-4 py-2.5 border-b border-r bd-hair w-[16rem] min-w-[16rem] #{rail_class(index)}"}>
+              <div class="flex items-center gap-3">
+                <span class={"font-display text-3xl w-8 text-center leading-none #{rank_class(index)}"}>
+                  <%= index + 1 %>
+                </span>
+                <div class="flex-1 min-w-0">
+                  <div class="truncate text-[13px] font-medium t-ink"><%= entrant.name %></div>
+                </div>
+                <span class="font-display text-3xl leading-none t-accent"><%= entrant.score %></span>
+              </div>
+            </th>
+
+            <%= for q <- @questions do %>
+              <% cell = entrant.answers[q.number] %>
+              <% answer_known = q.answer not in [nil, ""] %>
+              <td class={"text-center px-2 py-2 border-b border-r bd-hair align-middle #{cell_class(cell, answer_known)}"}>
+                <%= if cell && cell.answer not in [nil, ""] do %>
+                  <div class="text-[12px] leading-tight whitespace-nowrap t-soft">
+                    <%= cell.answer %>
+                  </div>
+                <% else %>
+                  <span class="t-faint text-[11px]">—</span>
+                <% end %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

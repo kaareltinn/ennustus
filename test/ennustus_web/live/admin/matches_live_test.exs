@@ -36,7 +36,7 @@ defmodule EnnustusWeb.Admin.MatchesLiveTest do
     {:ok, view, _html} = conn |> basic_auth() |> live(~p"/admin")
 
     view
-    |> form("form", %{
+    |> form(~s(form[phx-submit="save_match"]), %{
       "match_id" => match.id,
       "home_team" => "Mexico",
       "away_team" => "South Africa",
@@ -50,6 +50,27 @@ defmodule EnnustusWeb.Admin.MatchesLiveTest do
     assert updated.home_goals == 3
     assert updated.away_goals == 1
     assert updated.status == :finished
+  end
+
+  test "saving an extra answer marks matching player answers correct", %{conn: conn} do
+    {:ok, player} =
+      Repo.insert(Ennustus.Games.Player.changeset(%Ennustus.Games.Player{}, %{name: "p1"}))
+
+    q =
+      Repo.insert!(%Ennustus.Games.Question{
+        player_id: player.id,
+        question_number: 11,
+        answer: "Argentiina",
+        correct: false
+      })
+
+    {:ok, view, _html} = conn |> basic_auth() |> live(~p"/admin")
+
+    view
+    |> form("#extra-q-11", %{"question_number" => "11", "answer" => "argentiina"})
+    |> render_submit()
+
+    assert Repo.reload!(q).correct == true
   end
 
   test "apply winner bonuses marks matching champion pick correct", %{conn: conn} do

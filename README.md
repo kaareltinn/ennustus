@@ -66,6 +66,10 @@ The importers are in `lib/ennustus/worldcup2026/`:
 - `GroupStageExporter` — a player's 72 group-stage score predictions.
 - `PlayoffStageExporter` — a player's 32 knockout bracket team picks.
 - `WinnerExporter` — a player's champion (Q9) and third-place-winner (Q10) picks.
+- `QuestionsExporter` — the 15 extra-question answers (Q11–Q25, 10 pts each) read
+  from the consolidated `LISAKÜSIMUSTE VASTUSED.xlsx`. Skips players with no
+  workbook and players already imported, so admin answer-markings survive a
+  re-run.
 
 ### Seeding
 
@@ -78,9 +82,20 @@ The importers are in `lib/ennustus/worldcup2026/`:
 Safe to re-run. To add new entrants, drop their workbook into
 `priv/data/worldcup2026/` and run it again — only the new files are imported.
 
+`seed_worldcup2026/0` also imports the extra-question answers. To (re)import only
+those — e.g. after editing `LISAKÜSIMUSTE VASTUSED.xlsx` — run the questions
+exporter on its own.
+
 ```sh
 # locally (app already running):
 mix run -e 'Ennustus.Release.seed_worldcup2026()'
+
+# locally, extra questions only:
+mix run -e 'Ennustus.Worldcup2026.QuestionsExporter.process()'
+
+# production, extra questions only (starts the repo, then imports):
+fly ssh console --app <app> --command \
+  "/app/bin/ennustus eval 'Ennustus.Release.seed_questions()'"
 ```
 
 ## Admin page

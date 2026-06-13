@@ -10,6 +10,12 @@ defmodule Ennustus.Games do
   alias Ennustus.Games.Player
   alias Ennustus.Games.Match
   alias Ennustus.Games.Question
+  alias Ennustus.Games.AnswerKey
+  alias Ennustus.Worldcup2026.QuestionsExporter
+
+  # The 15 extra questions (imported by QuestionsExporter) are stored as
+  # question_number 11–25; each correct answer is worth 10 points.
+  @extra_question_numbers Enum.map(QuestionsExporter.questions(), fn {number, _title} -> number end)
 
   @games_order [
     1..72, # group stage
@@ -230,7 +236,7 @@ defmodule Ennustus.Games do
   def question_scores do
     sub =
       from q in Question,
-        where: q.correct == true and q.question_number in [1, 2, 3, 4, 5, 6, 7, 8],
+        where: q.correct == true and q.question_number in ^@extra_question_numbers,
         group_by: q.player_id,
         select: %{player_id: q.player_id, count: count(q.id)}
 
@@ -260,4 +266,92 @@ defmodule Ennustus.Games do
     Repo.all(query)
     |> Map.new(&{&1.player_id, &1})
   end
+
+  @doc """
+  The 15 extra questions as `[%{number, title, answer}]`, where `answer` is the
+  admin's stored canonical answer (nil when not yet set).
+  """
+  def extra_questions do
+    keys =
+      from(k in AnswerKey, select: {k.question_number, k.answer})
+      |> Repo.all()
+      |> Map.new()
+
+    Enum.map(QuestionsExporter.questions(), fn {number, title} ->
+      %{number: number, title: title, answer: Map.get(keys, number)}
+    end)
+  end
+
+  @doc """
+  All entrants' extra-question answers as
+  `[%{player_id, name, score, answers}]`, ranked by `score` (10 points per
+  correct answer) descending. `answers` maps each question_number (11–25) to
+  `%{answer, correct}`.
+  """
+  def extra_answers_by_player do
+    query =
+      from q in Question,
+        join: p in Player,
+        on: p.id == q.player_id,
+        where: q.question_number in ^@extra_question_numbers,
+        select: %{
+          player_id: p.id,
+          name: p.name,
+          question_number: q.question_number,
+          answer: q.answer,
+          correct: q.correct
+        }
+
+    Repo.all(query)
+    |> Enum.group_by(& &1.player_id)
+    |> Enum.map(fn {player_id, rows} ->
+      answers = Map.new(rows, &{&1.question_number, %{answer: &1.answer, correct: &1.correct}})
+      score = rows |> Enum.count(& &1.correct) |> Kernel.*(10)
+      %{player_id: player_id, name: hd(rows).name, score: score, answers: answers}
+    end)
+    |> Enum.sort_by(& &1.score, :desc)
+  end
+
+  @doc """
+  Stores the canonical correct `answer` for an extra question and re-marks every
+  player's answer: `correct` when it matches `answer` ignoring case and
+  surrounding whitespace, otherwise `false`. A blank answer clears all markings.
+  """
+  def set_extra_answer(question_number, answer) do
+    upsert_answer_key(question_number, answer)
+    mark_extra_correctness(question_number, answer)
+  end
+
+  defp upsert_answer_key(question_number, answer) do
+    %AnswerKey{}
+    |> AnswerKey.changeset(%{question_number: question_number, answer: answer})
+    |> Repo.insert(
+      on_conflict: {:replace, [:answer, :updated_at]},
+      conflict_target: :question_number
+    )
+  end
+
+  # Matching is done in Elixir, not SQL: SQLite's built-in lower() is ASCII-only
+  # and would not case-fold the non-ASCII characters (Š, Ž, Õ, ...) common in the
+  # Estonian answers.
+  defp mark_extra_correctness(question_number, answer) do
+    normalized = normalize_answer(answer)
+
+    {correct, incorrect} =
+      from(q in Question, where: q.question_number == ^question_number)
+      |> Repo.all()
+      |> Enum.split_with(fn q -> normalized != "" and normalize_answer(q.answer) == normalized end)
+
+    set_correctness(Enum.map(correct, & &1.id), true)
+    set_correctness(Enum.map(incorrect, & &1.id), false)
+  end
+
+  defp set_correctness([], _correct), do: :noop
+
+  defp set_correctness(ids, correct) do
+    from(q in Question, where: q.id in ^ids)
+    |> Repo.update_all(set: [correct: correct])
+  end
+
+  defp normalize_answer(answer), do: answer |> to_string() |> String.trim() |> String.downcase()
 end

@@ -123,5 +123,37 @@
         </div>
       </section>
     <% end %>
+
+    <section class="rounded-xl border bd-hair bg-panel p-5 mb-10">
+      <h2 class="font-display text-xl t-ink mb-1">Extra questions</h2>
+      <p class="text-xs t-faint mb-4">
+        Enter the correct answer for each question. Every player whose answer matches
+        (ignoring case and surrounding spaces) is awarded 10 points.
+      </p>
+      <div class="grid gap-2">
+        <%= for q <- @extra_questions do %>
+          <.form
+            for={%{}}
+            id={"extra-q-#{q.number}"}
+            phx-submit="save_extra_answer"
+            class="flex items-center gap-2"
+          >
+            <input type="hidden" name="question_number" value={q.number} />
+            <span class="font-display text-lg t-faint w-9 text-center shrink-0"><%= q.number %></span>
+            <label class="flex-1 min-w-0 text-[13px] t-soft truncate"><%= q.title %></label>
+            <input
+              type="text"
+              name="answer"
+              value={q.answer}
+              placeholder="correct answer"
+              class="flex-1 min-w-0 rounded-md border bd-hair bg-white px-2 py-1.5 text-[13px] t-ink"
+            />
+            <button class="shrink-0 rounded-md bg-ink px-3 py-1.5 text-[13px] font-semibold t-panel hover:opacity-90 transition-opacity">
+              Save
+            </button>
+          </.form>
+        <% end %>
+      </div>
+    </section>
   </div>
 </div>

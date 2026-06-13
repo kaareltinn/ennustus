@@ -56,6 +56,12 @@
 .score-neg { color: var(--neg); }
 .score-zero { color: var(--ink-faint); }
 
+/* extra-question answer cells — tinted background for correct / incorrect */
+.scoreboard td.cell-correct { background: rgba(95, 125, 91, 0.16); }
+.scoreboard td.cell-wrong { background: rgba(176, 96, 70, 0.14); }
+.scoreboard tbody tr:hover td.cell-correct { background: rgba(95, 125, 91, 0.24); }
+.scoreboard tbody tr:hover td.cell-wrong { background: rgba(176, 96, 70, 0.22); }
+
 /* sticky cell backings */
 .sb-corner { background: var(--panel-2); }
 .sb-head { background: rgba(251, 250, 246, 0.94); }

@@ -35,6 +35,15 @@ defmodule EnnustusWeb.Admin.MatchesLive do
      |> assign_data()}
   end
 
+  def handle_event("save_extra_answer", %{"question_number" => number, "answer" => answer}, socket) do
+    Games.set_extra_answer(String.to_integer(number), answer)
+
+    {:noreply,
+     socket
+     |> put_flash(:info, "Saved extra question ##{number}")
+     |> assign_data()}
+  end
+
   def status_label(:not_started), do: "Not started"
   def status_label(:in_progress), do: "In progress"
   def status_label(:finished), do: "Finished"
@@ -54,5 +63,6 @@ defmodule EnnustusWeb.Admin.MatchesLive do
     |> assign(:teams, world_cup_2026_teams())
     |> assign(:champion, Games.actual_winner(104))
     |> assign(:third_place, Games.actual_winner(103))
+    |> assign(:extra_questions, Games.extra_questions())
   end
 end

@@ -2,22 +2,13 @@ defmodule Ennustus.Worldcup2026.ExportersTest do
   use Ennustus.DataCase
 
   alias Ennustus.Games.Player
-  alias Ennustus.Games.Prediction
   alias Ennustus.Games.Question
   alias Ennustus.Repo
 
-  alias Ennustus.Worldcup2026.GroupStageExporter
   alias Ennustus.Worldcup2026.MatchesExporter
-  alias Ennustus.Worldcup2026.PlayoffStageExporter
-  alias Ennustus.Worldcup2026.WinnerExporter
+  alias Ennustus.Worldcup2026.QuestionsExporter
 
-  @sample_file Path.join(File.cwd!(), "priv/data/worldcup2026/kaarel_tinn.xlsx")
-
-  defp predictions(player_id, game_numbers) do
-    Repo.all(from p in Prediction, where: p.player_id == ^player_id, select: p)
-    |> Enum.filter(&(&1.game_number in game_numbers))
-    |> Map.new(&{&1.game_number, &1})
-  end
+  @extra_questions_file Path.join(File.cwd!(), "priv/data/worldcup2026/LISAKÜSIMUSTE VASTUSED.xlsx")
 
   describe "MatchesExporter" do
     test "seeds 72 group fixtures with real teams" do
@@ -39,40 +30,51 @@ defmodule Ennustus.Worldcup2026.ExportersTest do
     end
   end
 
-  describe "prediction exporters against the example file" do
-    setup do
-      GroupStageExporter.process(@sample_file)
-      player = Repo.get_by!(Player, name: "kaarel_tinn")
-      {:ok, player: player}
+  describe "QuestionsExporter against the extra-questions file" do
+    defp questions(player_id) do
+      Repo.all(from q in Question, where: q.player_id == ^player_id, select: q)
+      |> Map.new(&{&1.question_number, &1})
     end
 
-    test "group stage imports 72 predictions with teams and goals", %{player: player} do
-      preds = predictions(player.id, 1..72)
-      assert map_size(preds) == 72
+    test "imports the 15 extra-question answers as question_number 11-25 for a matched player" do
+      {:ok, player} = Repo.insert(Player.changeset(%Player{}, %{name: "Sander Orion"}))
 
-      g1 = preds[1]
-      assert {g1.home_team, g1.home_goals, g1.away_goals, g1.away_team} ==
-               {"Mexico", 1, 1, "South Africa"}
+      QuestionsExporter.process(@extra_questions_file)
+
+      qs = questions(player.id)
+      assert Map.keys(qs) |> Enum.sort() == Enum.to_list(11..25)
+      # column 1 (Kaardid) -> Q11, column 15 -> Q25; numeric answers stringified.
+      assert qs[11].answer == "Argentiina"
+      assert qs[19].answer == "9"
+      assert qs[24].answer == "Messi "
+      assert qs[25].answer == "Mbappe"
+      assert Enum.all?(Map.values(qs), &(&1.correct == false))
     end
 
-    test "playoff stage imports 32 knockout team picks", %{player: player} do
-      PlayoffStageExporter.process(@sample_file)
-      preds = predictions(player.id, 73..104)
-      assert map_size(preds) == 32
-
-      assert {preds[74].home_team, preds[74].away_team} == {"Germany", "Australia"}
-      assert {preds[104].home_team, preds[104].away_team} == {"France", "Portugal"}
-      assert {preds[103].home_team, preds[103].away_team} == {"Spain", "England"}
+    test "skips players who are absent from the workbook import" do
+      QuestionsExporter.process(@extra_questions_file)
+      # "Kertu-Liina Kaseorg" appears in the file but has no Player row.
+      refute Repo.get_by(Player, name: "Kertu-Liina Kaseorg")
     end
 
-    test "winner exporter imports champion and third-place winner picks", %{player: player} do
-      WinnerExporter.process(@sample_file)
+    test "is idempotent: re-running does not duplicate or reset answers" do
+      {:ok, player} = Repo.insert(Player.changeset(%Player{}, %{name: "Sander Orion"}))
 
-      champion = Repo.get_by(Question, player_id: player.id, question_number: 9)
-      third = Repo.get_by(Question, player_id: player.id, question_number: 10)
+      QuestionsExporter.process(@extra_questions_file)
+      Repo.update_all(from(q in Question, where: q.player_id == ^player.id), set: [correct: true])
 
-      assert champion.answer == "Portugal"
-      assert third.answer == "Spain"
+      QuestionsExporter.process(@extra_questions_file)
+
+      qs = questions(player.id)
+      assert map_size(qs) == 15
+      assert Enum.all?(Map.values(qs), &(&1.correct == true)), "re-import must not reset markings"
+    end
+
+    test "questions/0 exposes the 15 numbered titles" do
+      titles = QuestionsExporter.questions()
+      assert length(titles) == 15
+      assert {11, "Kaardid"} in titles
+      assert {25, "Mbappe/Kane/Vini Jr/Haaland/Yamal"} in titles
     end
   end
 end

@@ -12,8 +12,13 @@ defmodule Ennustus.Release do
     MatchesExporter,
     GroupStageExporter,
     PlayoffStageExporter,
-    WinnerExporter
+    WinnerExporter,
+    QuestionsExporter
   }
+
+  # The consolidated extra-questions workbook lives alongside the entrant
+  # workbooks but is not an entrant — it is imported separately.
+  @extra_questions_file "LISAKÜSIMUSTE VASTUSED.xlsx"
 
   def migrate do
     load_app()
@@ -58,7 +63,23 @@ defmodule Ennustus.Release do
   def seed_worldcup2026 do
     ensure_fixtures()
     Enum.each(prediction_files(), &import_entrant/1)
+    QuestionsExporter.process()
     :ok
+  end
+
+  @doc """
+  Imports only the consolidated extra-questions workbook, starting the repo
+  first so it is runnable via `bin/ennustus eval` in production. Idempotent.
+
+      /app/bin/ennustus eval 'Ennustus.Release.seed_questions()'
+  """
+  def seed_questions do
+    load_app()
+    {:ok, _} = Application.ensure_all_started(:xlsxir)
+
+    for repo <- repos() do
+      {:ok, _, _} = Ecto.Migrator.with_repo(repo, fn _repo -> QuestionsExporter.process() end)
+    end
   end
 
   defp ensure_fixtures do
@@ -78,6 +99,7 @@ defmodule Ennustus.Release do
       {:ok, files} ->
         files
         |> Enum.filter(&String.ends_with?(&1, ".xlsx"))
+        |> Enum.reject(&(&1 == @extra_questions_file))
         |> Enum.map(&Path.join(dir, &1))
 
       {:error, _} ->

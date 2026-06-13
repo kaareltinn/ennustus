@@ -40,8 +40,12 @@ Four flat schemas, joined by integer `player_id` (no Ecto associations):
   `home_goals`/`away_goals`/`status` (`:not_started | :in_progress | :finished`)
   filled in by admins.
 - `Prediction` — an entrant's score guess for one match.
-- `Question` — quiz/bonus answers. `question_number` 1–8 are quiz questions
-  (10 pts each when `correct`); **9 = champion pick, 10 = third-place pick**.
+- `Question` — quiz/bonus answers. **9 = champion pick** (30 pts), **10 =
+  third-place pick** (25 pts), **11–25 = the 15 extra questions** (10 pts each
+  when `correct`). Extra answers are imported in bulk by
+  `Worldcup2026.QuestionsExporter` from `LISAKÜSIMUSTE VASTUSED.xlsx`; their
+  canonical correct answers are stored in `AnswerKey` and set from the admin
+  page via `Games.set_extra_answer/2` (normalized trim/downcase match).
 
 ### Scoring is pure and computed on read
 

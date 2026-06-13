@@ -25,6 +25,7 @@ defmodule EnnustusWeb.Router do
     pipe_through :browser
 
     live "/", Games.PredictionsLive
+    live "/questions", Games.QuestionsLive
   end
 
   scope "/admin", EnnustusWeb do
