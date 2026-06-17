@@ -5,8 +5,10 @@ defmodule Ennustus.Release do
   """
   @app :ennustus
 
+  import Ecto.Query
+
   alias Ennustus.Repo
-  alias Ennustus.Games.{Match, Player}
+  alias Ennustus.Games.{Match, Player, Prediction, Question}
 
   alias Ennustus.Worldcup2026.{
     MatchesExporter,
@@ -80,6 +82,59 @@ defmodule Ennustus.Release do
     for repo <- repos() do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, fn _repo -> QuestionsExporter.process() end)
     end
+  end
+
+  @doc """
+  Repairs a single entrant whose workbook was corrected after the initial
+  import: deletes their existing data (predictions + all questions + the player
+  row) and reimports from their workbook in `priv/data/worldcup2026/<name>.xlsx`.
+
+  The entrant gets a fresh `player_id` (the group exporter creates the player),
+  so the extra-question answers (Q11–25) are reimported via `QuestionsExporter`
+  rather than left orphaned. Resolves the entrant by name, so it is safe to run
+  in production where row ids differ from dev.
+
+      /app/bin/ennustus eval 'Ennustus.Release.reimport_entrant("Kaarel Saviir")'
+  """
+  def reimport_entrant(name) do
+    load_app()
+    {:ok, _} = Application.ensure_all_started(:xlsxir)
+
+    for repo <- repos() do
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn _repo -> reimport_entrant_worldcup2026(name) end)
+    end
+  end
+
+  @doc """
+  The reimport logic, assuming the repo is already started — usable directly from
+  a remote IEx session on the running node:
+
+      Ennustus.Release.reimport_entrant_worldcup2026("Kaarel Saviir")
+  """
+  def reimport_entrant_worldcup2026(name) do
+    case Repo.get_by(Player, name: name) do
+      nil ->
+        IO.puts("#{name}: no existing player — nothing to delete.")
+
+      player ->
+        {:ok, _} =
+          Repo.transaction(fn ->
+            Repo.delete_all(from p in Prediction, where: p.player_id == ^player.id)
+            Repo.delete_all(from q in Question, where: q.player_id == ^player.id)
+            Repo.delete_all(from pl in Player, where: pl.id == ^player.id)
+          end)
+
+        IO.puts("#{name}: deleted old player ##{player.id} + predictions + questions.")
+    end
+
+    import_entrant(entrant_path(name))
+    QuestionsExporter.process()
+    :ok
+  end
+
+  defp entrant_path(name) do
+    Path.join(Application.app_dir(@app, "priv/data/worldcup2026"), "#{name}.xlsx")
   end
 
   defp ensure_fixtures do
