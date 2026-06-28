@@ -16,7 +16,8 @@ defmodule EnnustusWeb.Games.PredictionsLive do
         predictions,
         questions,
         winner_predictions,
-        third_place_predictions
+        third_place_predictions,
+        Ennustus.Games.group_stage_only_scoring?()
       )
       |> Ennustus.Games.Scorer.apply_overrides(Ennustus.Games.score_override_enabled?())
 

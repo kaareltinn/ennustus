@@ -57,6 +57,21 @@
       </button>
     </section>
 
+    <section class="rounded-xl border bd-hair bg-panel p-5 mb-10">
+      <h2 class="font-display text-xl t-ink mb-1">Group-stage-only scoring</h2>
+      <p class="text-xs t-faint mb-4">
+        When on, only group-stage games (1–72) award points. Playoff predictions,
+        extra-question scores and the champion/third-place bonuses are all set to 0,
+        so the standings reflect results after the group stage.
+      </p>
+      <button
+        phx-click="toggle_group_stage_only"
+        class={"rounded-lg px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 #{if @group_stage_only, do: "bg-accent text-white", else: "bg-ink t-panel"}"}
+      >
+        <%= if @group_stage_only, do: "On — click to disable", else: "Off — click to enable" %>
+      </button>
+    </section>
+
     <%= for {st, games} <- @grouped do %>
       <section class="mb-8">
         <div class="flex items-center gap-2.5 mb-2 px-1">

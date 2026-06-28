@@ -50,6 +50,12 @@ defmodule EnnustusWeb.Admin.MatchesLive do
     {:noreply, assign_data(socket)}
   end
 
+  def handle_event("toggle_group_stage_only", _params, socket) do
+    Games.set_group_stage_only_scoring(!socket.assigns.group_stage_only)
+
+    {:noreply, assign_data(socket)}
+  end
+
   def status_label(:not_started), do: "Not started"
   def status_label(:in_progress), do: "In progress"
   def status_label(:finished), do: "Finished"
@@ -71,5 +77,6 @@ defmodule EnnustusWeb.Admin.MatchesLive do
     |> assign(:third_place, Games.actual_winner(103))
     |> assign(:extra_questions, Games.extra_questions())
     |> assign(:score_override, Games.score_override_enabled?())
+    |> assign(:group_stage_only, Games.group_stage_only_scoring?())
   end
 end

@@ -121,6 +121,19 @@ defmodule Ennustus.GamesTest do
       assert Repo.get_by(Question, player_id: p1.id, question_number: 11).correct
     end
 
+    test "set_extra_answer/2 supports questions with multiple answers" do
+      p1 = player("p1")
+      p2 = player("p2")
+      p3 = player("p3")
+      answer(p1, 11, "Holland")
+      answer(p2, 11, "Argentiina")
+      answer(p3, 11, "Iraak")
+      Games.set_extra_answer(11, "Argentiina, Holland")
+      assert Repo.get_by(Question, player_id: p1.id, question_number: 11).correct
+      assert Repo.get_by(Question, player_id: p2.id, question_number: 11).correct
+      refute Repo.get_by(Question, player_id: p3.id, question_number: 11).correct
+    end
+
     test "blank answer clears all markings for the question" do
       p1 = player("p1")
       answer(p1, 11, "Argentiina")

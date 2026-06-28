@@ -28,7 +28,20 @@ defmodule Ennustus.Games.Scorer do
     |> Enum.sort_by(fn [_, total, _] -> total end, :desc)
   end
 
-  def score(matches, predictions, questions, winner_predictions, third_place_predictions) do
+  @doc """
+  Computes standings. When `group_stage_only?` is true (admin toggle), only
+  group-stage games (1–72) award points: playoff predictions, extra-question
+  scores and the champion/third-place bonuses are all forced to 0. Used to view
+  the standings as they stood after the group stage.
+  """
+  def score(
+        matches,
+        predictions,
+        questions,
+        winner_predictions,
+        third_place_predictions,
+        group_stage_only?
+      ) do
     matches_by_game_number =
       matches
       |> Enum.group_by(fn %{game_number: game_number} -> game_number end)
@@ -40,32 +53,35 @@ defmodule Ennustus.Games.Scorer do
     Enum.reduce(predictions, [], fn {{player_id, name}, predictions}, acc ->
       scored_predictions =
         Enum.map(predictions, fn prediction ->
-          [match] = matches_by_game_number[prediction.game_number]
+          score =
+            cond do
+              prediction.game_number < 73 ->
+                [match] = matches_by_game_number[prediction.game_number]
+                score_prediction(prediction, match)
 
-          if prediction.game_number < 73 do
-            Map.merge(
-              prediction,
-              %{
-                score: score_prediction(prediction, match)
-              }
-            )
-          else
-            Map.merge(
-              prediction,
-              %{
-                score: score_playoff_prediction(prediction, match.game_number, matches_by_stage)
-              }
-            )
-          end
+              group_stage_only? ->
+                0
+
+              true ->
+                [match] = matches_by_game_number[prediction.game_number]
+                score_playoff_prediction(prediction, match.game_number, matches_by_stage)
+            end
+
+          Map.put(prediction, :score, score)
         end)
 
-      questions_score = Map.get(questions, player_id, [%{score: 0}]) |> List.first()
-      winner_score = score_winner(player_id, winner_predictions)
-      third_place_score = score_third_place(player_id, third_place_predictions)
+      {questions_score, winner_score, third_place_score} =
+        if group_stage_only? do
+          {0, 0, 0}
+        else
+          questions_score = Map.get(questions, player_id, [%{score: 0}]) |> List.first()
+
+          {questions_score.score, score_winner(player_id, winner_predictions),
+           score_third_place(player_id, third_place_predictions)}
+        end
 
       total =
-        total_score(scored_predictions) + questions_score.score + winner_score +
-          third_place_score
+        total_score(scored_predictions) + questions_score + winner_score + third_place_score
 
       [[{player_id, name}, total, scored_predictions] | acc]
     end)

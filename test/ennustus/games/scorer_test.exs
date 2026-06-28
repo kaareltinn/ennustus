@@ -96,6 +96,50 @@ defmodule Ennustus.Games.ScorerTest do
   end
 end
 
+defmodule Ennustus.Games.ScorerGroupStageOnlyTest do
+  use ExUnit.Case, async: true
+
+  alias Ennustus.Games.Scorer
+
+  defp fixtures do
+    matches = [
+      %{game_number: 1, status: :finished, home_goals: 2, away_goals: 1, home_team: "A", away_team: "B"},
+      %{game_number: 80, status: :finished, home_goals: 1, away_goals: 0, home_team: "Brazil", away_team: "Spain"}
+    ]
+
+    predictions = %{
+      {1, "Alice"} => [
+        %{game_number: 1, home_goals: 2, away_goals: 1, home_team: "A", away_team: "B"},
+        %{game_number: 80, home_team: "Brazil", away_team: "Spain"}
+      ]
+    }
+
+    questions = %{1 => [%{score: 30}]}
+    winner_predictions = %{1 => %{correct: true}}
+    third_place_predictions = %{1 => %{correct: true}}
+
+    {matches, predictions, questions, winner_predictions, third_place_predictions}
+  end
+
+  test "disabled (false) scores group + playoff + bonuses" do
+    {matches, predictions, questions, winner, third} = fixtures()
+
+    # group exact 12 + playoff 2*10 + questions 30 + winner 30 + third 25
+    assert [[{1, "Alice"}, 117, _]] =
+             Scorer.score(matches, predictions, questions, winner, third, false)
+  end
+
+  test "enabled (true) scores only group stage games" do
+    {matches, predictions, questions, winner, third} = fixtures()
+
+    assert [[{1, "Alice"}, total, scored]] =
+             Scorer.score(matches, predictions, questions, winner, third, true)
+
+    assert total == 12
+    assert Enum.find(scored, &(&1.game_number == 80)).score == 0
+  end
+end
+
 defmodule Ennustus.Games.ScorerOverrideTest do
   use ExUnit.Case, async: true
 

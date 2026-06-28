@@ -17,6 +17,10 @@ defmodule Ennustus.Games do
   # Admin toggle for the display-only standings override (see Scorer).
   @score_override_key "standings_score_override"
 
+  # Admin toggle: when enabled, only group-stage games award points (playoff
+  # predictions and bonuses are zeroed) so standings reflect the group stage.
+  @group_stage_only_key "group_stage_only_scoring"
+
   # The 15 extra questions (imported by QuestionsExporter) are stored as
   # question_number 11–25; each correct answer is worth 10 points.
   @extra_question_numbers Enum.map(QuestionsExporter.questions(), fn {number, _title} -> number end)
@@ -294,6 +298,14 @@ defmodule Ennustus.Games do
     Settings.set_boolean(@score_override_key, enabled)
   end
 
+  @doc "Whether scoring is restricted to group-stage games only."
+  def group_stage_only_scoring?, do: Settings.get_boolean(@group_stage_only_key)
+
+  @doc "Enables or disables group-stage-only scoring."
+  def set_group_stage_only_scoring(enabled) when is_boolean(enabled) do
+    Settings.set_boolean(@group_stage_only_key, enabled)
+  end
+
   @doc """
   All entrants' extra-question answers as
   `[%{player_id, name, score, answers}]`, ranked by `score` (10 points per
@@ -347,12 +359,15 @@ defmodule Ennustus.Games do
   # and would not case-fold the non-ASCII characters (Š, Ž, Õ, ...) common in the
   # Estonian answers.
   defp mark_extra_correctness(question_number, answer) do
-    normalized = normalize_answer(answer)
+    normalized = answer
+      |> String.split(",")
+      |> Enum.map(&normalize_answer/1)
+      |> Enum.reject(&(&1 == ""))
 
     {correct, incorrect} =
       from(q in Question, where: q.question_number == ^question_number)
       |> Repo.all()
-      |> Enum.split_with(fn q -> normalized != "" and normalize_answer(q.answer) == normalized end)
+      |> Enum.split_with(fn q -> normalize_answer(q.answer) in normalized end)
 
     set_correctness(Enum.map(correct, & &1.id), true)
     set_correctness(Enum.map(incorrect, & &1.id), false)
@@ -365,5 +380,7 @@ defmodule Ennustus.Games do
     |> Repo.update_all(set: [correct: correct])
   end
 
-  defp normalize_answer(answer), do: answer |> to_string() |> String.trim() |> String.downcase()
+  defp normalize_answer(answer) do
+    answer |> to_string() |> String.trim() |> String.downcase()
+  end
 end
