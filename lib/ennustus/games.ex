@@ -26,13 +26,13 @@ defmodule Ennustus.Games do
   @extra_question_numbers Enum.map(QuestionsExporter.questions(), fn {number, _title} -> number end)
 
   @games_order [
-    1..72, # group stage
     73..88, # 1/16
     89..96, # 1/8
     97..100, # 1/4
     101..102, # 1/2
     [103], # third place
-    [104] # final
+    [104], # final
+    1..72, # group stage
   ] |> Enum.flat_map(&Enum.to_list/1)
 
   @order_index @games_order |> Enum.with_index() |> Map.new()
