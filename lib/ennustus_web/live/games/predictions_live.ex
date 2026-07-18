@@ -27,6 +27,7 @@ defmodule EnnustusWeb.Games.PredictionsLive do
       socket
       |> assign(:predictions, scored_predictions)
       |> assign(:winner_predictions, winner_predictions)
+      |> assign(:third_place_predictions, third_place_predictions)
       |> assign(:matches, matches)
       |> assign(:matches_index, matches_index)
       |> assign(:selected_player, nil)

@@ -74,10 +74,12 @@
                 <div class="flex-1 min-w-0">
                   <div class="truncate text-[13px] font-medium t-ink"><%= player_name %></div>
                   <% winner = @winner_predictions[player_id] %>
+                  <% winner_score = Ennustus.Games.Scorer.score_winner(player_id, @winner_predictions) %>
                   <div class="flex items-center gap-1.5 text-[11px] t-soft mt-0.5">
                     <%= if winner do %>
                       <span class={"fi fi-#{iso_code_2(winner.answer)}"}></span>
                       <span class="truncate"><%= winner.answer %></span>
+                      <span class={"font-display #{score_class(winner_score)}"}><%= winner_score %></span>
                     <% else %>
                       <span class="t-faint">—</span>
                     <% end %>
@@ -89,22 +91,36 @@
 
             <%= for game <- games do %>
               <td class="text-center px-2 py-2 border-b border-r bd-hair align-middle">
-                <%= if game.game_number < 73 do %>
-                  <div class="text-[11px] t-faint leading-none">
-                    <%= game.home_goals %>:<%= game.away_goals %>
-                  </div>
-                  <div class={"font-display text-base leading-tight #{score_class(game.score)}"}>
-                    <%= game.score %>
-                  </div>
-                <% else %>
-                  <div class="flex items-center justify-center gap-1 whitespace-nowrap text-[10px] t-faint leading-none">
-                    <span class={"fi fi-#{iso_code_2(game.home_team)}"}></span>
-                    <span class="t-faint">/</span>
-                    <span class={"fi fi-#{iso_code_2(game.away_team)}"}></span>
-                  </div>
-                  <div class={"font-display text-base leading-tight #{score_class(game.score)}"}>
-                    <%= game.score %>
-                  </div>
+                <%= cond do %>
+                  <% game.game_number < 73 -> %>
+                    <div class="text-[11px] t-faint leading-none">
+                      <%= game.home_goals %>:<%= game.away_goals %>
+                    </div>
+                    <div class={"font-display text-base leading-tight #{score_class(game.score)}"}>
+                      <%= game.score %>
+                    </div>
+                  <% game.game_number == 103 -> %>
+                    <% third = @third_place_predictions[player_id] %>
+                    <% third_score = Ennustus.Games.Scorer.score_third_place(player_id, @third_place_predictions) %>
+                    <div class="flex items-center justify-center whitespace-nowrap text-[10px] t-faint leading-none">
+                      <%= if third do %>
+                        <span class={"fi fi-#{iso_code_2(third.answer)}"}></span>
+                      <% else %>
+                        <span class="t-faint">—</span>
+                      <% end %>
+                    </div>
+                    <div class={"font-display text-base leading-tight #{score_class(third_score)}"}>
+                      <%= third_score %>
+                    </div>
+                  <% true -> %>
+                    <div class="flex items-center justify-center gap-1 whitespace-nowrap text-[10px] t-faint leading-none">
+                      <span class={"fi fi-#{iso_code_2(game.home_team)}"}></span>
+                      <span class="t-faint">/</span>
+                      <span class={"fi fi-#{iso_code_2(game.away_team)}"}></span>
+                    </div>
+                    <div class={"font-display text-base leading-tight #{score_class(game.score)}"}>
+                      <%= game.score %>
+                    </div>
                 <% end %>
               </td>
             <% end %>
@@ -133,10 +149,12 @@
         <div class="flex-1 min-w-0">
           <div class="truncate text-[13px] font-medium t-ink"><%= player_name %></div>
           <% winner = @winner_predictions[player_id] %>
+          <% winner_score = Ennustus.Games.Scorer.score_winner(player_id, @winner_predictions) %>
           <div class="flex items-center gap-1 text-[11px] t-soft mt-0.5">
             <%= if winner do %>
               <span class={"fi fi-#{iso_code_2(winner.answer)}"}></span>
               <span class="truncate"><%= winner.answer %></span>
+              <span class={"font-display #{score_class(winner_score)}"}><%= winner_score %></span>
             <% else %>
               <span class="t-faint">—</span>
             <% end %>
@@ -164,9 +182,11 @@
               <div class="text-[10px] uppercase tracking-[0.3em] t-faint mb-0.5">Mängija</div>
               <div class="font-display text-xl t-ink leading-tight truncate"><%= player_name %></div>
               <%= if winner do %>
+                <% winner_score = Ennustus.Games.Scorer.score_winner(player_id, @winner_predictions) %>
                 <div class="flex items-center gap-1 text-[11px] t-soft mt-1">
                   <span class={"fi fi-#{iso_code_2(winner.answer)}"}></span>
                   <span><%= winner.answer %></span>
+                  <span class={"font-display #{score_class(winner_score)}"}><%= winner_score %></span>
                 </div>
               <% end %>
             </div>
@@ -188,6 +208,10 @@
               </div>
               <%= for game <- stage_games do %>
                 <% match = @matches_index[game.game_number] %>
+                <% display_score =
+                  if game.game_number == 103,
+                    do: Ennustus.Games.Scorer.score_third_place(player_id, @third_place_predictions),
+                    else: game.score %>
                 <div class="flex items-center gap-2 px-4 py-2.5 border-b bd-hair">
                   <div class="text-[10px] t-faint w-7 text-right shrink-0">#<%= game.game_number %></div>
 
@@ -208,19 +232,27 @@
                   </div>
 
                   <div class="text-[11px] t-soft shrink-0">
-                    <%= if game.game_number < 73 do %>
-                      <span><%= game.home_goals %>:<%= game.away_goals %></span>
-                    <% else %>
-                      <div class="flex items-center gap-0.5">
-                        <span class={"fi fi-#{iso_code_2(game.home_team)}"}></span>
-                        <span class="t-faint">/</span>
-                        <span class={"fi fi-#{iso_code_2(game.away_team)}"}></span>
-                      </div>
+                    <%= cond do %>
+                      <% game.game_number < 73 -> %>
+                        <span><%= game.home_goals %>:<%= game.away_goals %></span>
+                      <% game.game_number == 103 -> %>
+                        <% third = @third_place_predictions[player_id] %>
+                        <%= if third do %>
+                          <span class={"fi fi-#{iso_code_2(third.answer)}"}></span>
+                        <% else %>
+                          <span class="t-faint">—</span>
+                        <% end %>
+                      <% true -> %>
+                        <div class="flex items-center gap-0.5">
+                          <span class={"fi fi-#{iso_code_2(game.home_team)}"}></span>
+                          <span class="t-faint">/</span>
+                          <span class={"fi fi-#{iso_code_2(game.away_team)}"}></span>
+                        </div>
                     <% end %>
                   </div>
 
-                  <div class={"font-display text-base w-8 text-right shrink-0 #{score_class(game.score)}"}>
-                    <%= game.score %>
+                  <div class={"font-display text-base w-8 text-right shrink-0 #{score_class(display_score)}"}>
+                    <%= display_score %>
                   </div>
                 </div>
               <% end %>

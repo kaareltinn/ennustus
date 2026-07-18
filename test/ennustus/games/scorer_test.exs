@@ -32,13 +32,12 @@ defmodule Ennustus.Games.ScorerTest do
   describe "score_playoff_prediction/3 (WC2026 stages)" do
     # game_number -> stage coefficient mapping for World Cup 2026
     # round_of_32 73..88 = 10, round_of_16 89..96 = 12, quarter 97..100 = 15,
-    # semi 101..102 = 18, third 103 = 22, final 104 = 20
+    # semi 101..102 = 18, final 104 = 20
     @cases [
       {80, :round_of_32, 10},
       {90, :round_of_16, 12},
       {98, :quarter, 15},
       {101, :semi, 18},
-      {103, :third, 22},
       {104, :final, 20}
     ]
 
@@ -64,6 +63,15 @@ defmodule Ennustus.Games.ScorerTest do
       prediction = %{home_team: "Wrong", away_team: "AlsoWrong"}
       matches_by_stage = %{round_of_32: [%{home_team: "Brazil", away_team: "Spain"}]}
       assert Scorer.score_playoff_prediction(prediction, 80, matches_by_stage) == 0
+    end
+
+    test "game 103 (third place) scores 0 even with both teams correct" do
+      # Teams reaching the third-place match award nothing: the third-place
+      # winner bonus (score_third_place/2) is the only points source for game 103.
+      prediction = %{home_team: "Brazil", away_team: "Spain"}
+      matches_by_stage = %{third: [%{home_team: "Brazil", away_team: "Spain"}]}
+
+      assert Scorer.score_playoff_prediction(prediction, 103, matches_by_stage) == 0
     end
   end
 

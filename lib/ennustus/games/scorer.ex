@@ -109,6 +109,10 @@ defmodule Ennustus.Games.Scorer do
     end
   end
 
+  # Teams reaching the third-place match award nothing: game 103 results only
+  # drive the third-place winner bonus (score_third_place/2).
+  def score_playoff_prediction(_prediction, 103, _matches_by_stage), do: 0
+
   def score_playoff_prediction(prediction, game_number, matches_by_stage) do
     stage = get_playoff_stage(game_number)
     matches = matches_by_stage[stage]
@@ -179,7 +183,6 @@ defmodule Ennustus.Games.Scorer do
       :round_of_16 -> 12
       :quarter -> 15
       :semi -> 18
-      :third -> 22
       :final -> 20
     end
   end
